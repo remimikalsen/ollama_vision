@@ -1,0 +1,46 @@
+analyze_image:
+  name: "Analyze Image"
+  description: "Send an image to Ollama for analysis and create a sensor with the result. Optionally elaborate the description with a text model."
+  fields:
+    image_url:
+      name: "Image URL"
+      description: "URL of the image to analyze"
+      required: true
+      example: "https://example.com/image.jpg"
+      selector:
+        text:
+    prompt:
+      name: "Vision Prompt"
+      description: "Prompt to send to Ollama vision model with the image"
+      required: false
+      default: "This image is from a security camera above my front door. If there are people in the image, describe thir genders, estimated ages, facial expressions (moods), hairstyles, notable facial features, and clothing styles clearly and concisely. If no people are present, describe what is on my porch clearly and concisely."
+      selector:
+        text:
+    image_name:
+      name: "Image Name"
+      description: "Unique name for this image (used for sensor naming)"
+      required: true
+      example: "front_door_camera"
+      selector:
+        text:
+    device_id:
+      name: "Configuration"
+      description: "Pick the Ollama Vision device to use for this analysis. A device represents a specific vision and text model."
+      required: false
+      selector:
+        device:
+          integration: ollama_vision
+    use_text_model:
+      name: "Use Text Model"
+      description: "Whether to use the text model to elaborate on the vision model's description"
+      required: false
+      default: false
+      selector:
+        boolean:
+    text_prompt:
+      name: "Text Prompt"
+      description: "Prompt template for the text model. See the default template to learn how to reference the vision model's output."
+      required: false
+      default: "You are an AI that introduces people who come to visit me. You are cheeky and love a roast. Based on the following description: <description>{description}</description> – introduce this guest to me. Keep it short and concise, in English."
+      selector:
+        text: 

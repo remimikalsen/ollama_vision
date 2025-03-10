@@ -1,0 +1,180 @@
+name: Publish version to GitHub Container Registry and create a release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    steps:
+
+      - name: Start SSH agent with deploy key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Add GitHub to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Update remote URL to use SSH
+        run: git remote set-url origin git@github.com:${{ github.repository }}.git
+
+      - name: Determine next version from last tag
+        id: semver
+        run: |
+          # Fetch all tags (sometimes needed explicitly)
+          git fetch --tags --prune
+
+          # Get the latest tag, or 0.0.0 if none
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+
+          MAJOR=$(echo "$LATEST_TAG" | cut -d '.' -f 1)
+          MINOR=$(echo "$LATEST_TAG" | cut -d '.' -f 2)
+          PATCH=$(echo "$LATEST_TAG" | cut -d '.' -f 3)
+
+          NEXT_MAJOR=$MAJOR
+          NEXT_MINOR=$MINOR
+          NEXT_PATCH=$((PATCH + 1))
+
+          # Check commit message for [major] or [minor]
+          if [[ "${{ github.event.head_commit.message }}" =~ \[major\] ]]; then
+            NEXT_MAJOR=$((MAJOR + 1))
+            NEXT_MINOR=0
+            NEXT_PATCH=0
+          elif [[ "${{ github.event.head_commit.message }}" =~ \[minor\] ]]; then
+            NEXT_MINOR=$((MINOR + 1))
+            NEXT_PATCH=0
+          fi
+
+          NEXT_VERSION="${NEXT_MAJOR}.${NEXT_MINOR}.${NEXT_PATCH}"
+          echo "Computed next version: $NEXT_VERSION"
+
+          # Export variables
+          echo "VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+          echo "MAJOR=$NEXT_MAJOR" >> $GITHUB_ENV
+
+      - name: Resolve true commit SHA
+        id: sha_resolver
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            ACTUAL_SHA=$(git log --merges --pretty=format:%H -1 | xargs -I{} git show {} --no-patch --format=%P | cut -d' ' -f2)
+            echo "TRUE_SHA=${ACTUAL_SHA:-${{ github.sha }}}" >> $GITHUB_OUTPUT
+          else
+            echo "TRUE_SHA=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+            
+      - name: Get PR metadata
+        uses: 8BitJonny/gh-get-current-pr@3.0.0
+        id: pr_meta
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ steps.sha_resolver.outputs.TRUE_SHA }}
+
+      - name: Update VERSION and manifest.json and const.py and commit
+        run: |
+
+          sed -i 's/"version": "[^"]*"/"version": "'${{ env.VERSION }}'"/' custom_components/ollama_vision/manifest.json
+          sed -i 's/__version__ = "[^"]*"/__version__ = "'${{ env.VERSION }}'"/' custom_components/ollama_vision/const.py
+
+          echo "${{ env.VERSION }}" > VERSION
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@ollama_vision"
+
+          git add custom_components/ollama_vision/manifest.json
+          git add custom_components/ollama_vision/const.py
+          git add VERSION
+          
+          git commit -m "ci: update VERSION and manifest file to ${{ env.VERSION }} [skip ci]"
+
+          git push origin main
+
+      - name: Push new Git tag
+        run: |
+          # Configure Git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@ollama_vision"
+
+          # Create and push the new tag
+          git tag "${{ env.VERSION }}" -m "ci: release version ${{ env.VERSION }}"
+          git push origin "${{ env.VERSION }}"
+        
+      - name: Check if PR was squashed
+        id: check_squash
+        run: |
+          # Fetch PR commits using GitHub API and count them using Python
+          PR_COMMITS=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_meta.outputs.number }}/commits" | \
+            python3 -c "import sys, json; print(len(json.load(sys.stdin)))")
+          
+          echo "Commit count: $PR_COMMITS"
+      
+          # If there's only one commit, assume it's a squash merge
+          if [[ "$PR_COMMITS" -eq 1 ]]; then
+            echo "SQUASH_MERGE=true" >> $GITHUB_ENV
+          else
+            echo "SQUASH_MERGE=false" >> $GITHUB_ENV
+          fi
+
+      - name: Get commit messages with SHAs
+        run: |
+          if [[ "$SQUASH_MERGE" == "true" ]]; then
+            # For squash merges, just fetch the single PR commit
+            response=$(curl -s \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_meta.outputs.number }}/commits")
+      
+            echo "$response" \
+              | python3 -c "import sys, json; d = json.load(sys.stdin)[0]; print(f\"{d['commit']['message']} ({d['sha'][:7]})\")" \
+              > commits.txt
+          else
+            # For regular merges, exclude lines containing "Merge pull request"
+            git log --pretty=format:"%s (%h)" ${{ github.event.before }}..${{ github.sha }} \
+              | grep -v "Merge pull request" \
+              > commits.txt
+          fi
+
+      - name: Build release notes file
+        run: |
+          # Create a file for the release notes.
+          # Title from the PR:
+          echo "## ${{ steps.pr_meta.outputs.pr_title }}" > release_body.md
+
+          # Conditionally add a "Summary" section if there's a PR body.
+          if [[ -n "${{ steps.pr_meta.outputs.pr_body }}" ]]; then
+            echo "" >> release_body.md
+            echo "### Summary" >> release_body.md
+            echo "${{ steps.pr_meta.outputs.pr_body }}" >> release_body.md
+          fi
+
+          echo "" >> release_body.md
+          echo "### Changes" >> release_body.md
+          awk '{print "• " $0}' commits.txt >> release_body.md
+
+          echo "" >> release_body.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
+          body_path: release_body.md
+          draft: false
+          prerelease: false

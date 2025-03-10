@@ -1,0 +1,93 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Connect to Ollama Vision",
+          "description": "Enter the details to connect to your Ollama Vision model.",
+          "data": {
+            "name": "Name",
+            "host": "Vision Host",
+            "port": "Vision Port",
+            "model": "Vision Model",
+            "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
+            "text_model_enabled": "Enable Text Model"
+          }
+        },
+        "text_model": {
+          "title": "Text Model Configuration",
+          "description": "Enter the details for your Ollama Text model.",
+          "data": {
+            "text_host": "Text Model Host",
+            "text_port": "Text Model Port",
+            "text_model": "Text Model",
+            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)"
+          }
+        }
+      },
+      "error": {
+        "cannot_connect": "Cannot connect to Ollama",
+        "unknown": "Unexpected error occurred",
+        "required": "This field is required"
+      },
+      "abort": {
+        "already_configured": "Ollama Vision is already configured"
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+            "title": "Ollama Vision Options",
+            "description": "Adjust your Ollama Vision integration settings.",
+            "data": {
+            "host": "Vision Host",
+            "port": "Vision Port",
+            "model": "Vision Model",
+            "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
+            "text_model_enabled": "Enable Text Model"
+            }
+        },
+        "text_model_options": {
+            "title": "Text Model Options",
+            "description": "Enter the details for your Ollama Text model.",
+            "data": {
+            "text_host": "Text Model Host",
+            "text_port": "Text Model Port",
+            "text_model": "Text Model",
+            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)"
+            }
+        }
+        }
+    },
+    "services": {
+      "analyze_image": {
+        "name": "Analyze Image",
+        "description": "Send an image to Ollama for analysis and create a sensor with the result. Optionally elaborate the description with a text model.",
+        "fields": {
+          "image_url": {
+            "name": "Image URL",
+            "description": "URL of the image to analyze."
+          },
+          "prompt": {
+            "name": "Vision Prompt",
+            "description": "Prompt to send to Ollama vision model with the image."
+          },
+          "image_name": {
+            "name": "Image Name",
+            "description": "Unique name for this image (used for sensor naming)."
+          },
+          "device_id": {
+            "name": "Configuration",
+            "description": "Pick the Ollama Vision device to use for this analysis. A device represents a specific vision and text model."
+          },
+          "use_text_model": {
+            "name": "Use Text Model",
+            "description": "Whether to use the text model to elaborate on the vision model's description."
+          },
+          "text_prompt": {
+            "name": "Text Prompt",
+            "description": "Prompt template for the text model. See the default template to learn how to reference the vision model's output."
+          }
+        }
+      }
+    }
+  }
