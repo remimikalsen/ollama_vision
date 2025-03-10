@@ -1,3 +1,8 @@
+![Build Status](https://img.shields.io/github/actions/workflow/status/remimikalsen/ollama_vision/publish.yaml)
+![License](https://img.shields.io/github/license/remimikalsen/ollama_vision)
+![Version](https://img.shields.io/github/tag/remimikalsen/ollama_vision)
+
+
 # Ollama Vision
 
 This integration enables you to analyze images using a local Ollama server running a vision-enabled LLM. Optionally, it can also use a specialized text model to generate more elaborate text. For example, you could add a cheeky or “roast-style” introduction for people captured on a security camera.
