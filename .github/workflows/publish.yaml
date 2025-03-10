@@ -138,15 +138,19 @@ jobs:
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_meta.outputs.number }}/commits")
-      
+
             echo "$response" \
               | python3 -c "import sys, json; d = json.load(sys.stdin)[0]; print(f\"{d['commit']['message']} ({d['sha'][:7]})\")" \
               > commits.txt
           else
-            # For regular merges, exclude lines containing "Merge pull request"
-            git log --pretty=format:"%s (%h)" ${{ github.event.before }}..${{ github.sha }} \
-              | grep -v "Merge pull request" \
-              > commits.txt
+            # Check if this is the initial commit (previous SHA is all zeros)
+            if [[ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]]; then
+              git log --pretty=format:"%s (%h)" ${{ github.sha }} > commits.txt
+            else
+              git log --pretty=format:"%s (%h)" ${{ github.event.before }}..${{ github.sha }} \
+                | grep -v "Merge pull request" \
+                > commits.txt
+            fi
           fi
 
       - name: Build release notes file
