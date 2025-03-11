@@ -5,9 +5,11 @@
 
 # Ollama Vision
 
-This integration enables you to analyze images using a local Ollama server running a vision-enabled LLM. Optionally, it can also use a specialized text model to generate more elaborate text. For example, you could add a cheeky or “roast-style” introduction for people captured on a security camera.
+This integration enables you to analyze images using a local Ollama server running a vision-enabled LLM. Optionally, it can also use a specialized text model to generate more elaborate text. For example, you could add a cheeky or “roast-style” introduction for people captured on a security camera. 
 
 This integration is perfect if you use Frigate for local object detection—now you can have a fully local LLM describe images from Frigate and send those descriptions to your phone, or use them in automations however you like.
+
+I wrote a step-by-step guide for Ollama Vision on my technology blog, [The Awesome Garage](https://theawesomegarage.com/blog/ollama-vision-local-ai-image-processing-in-home-assistant).
 
 ## Requirements
 
