@@ -7,6 +7,6 @@
     "codeowners": ["@remimikalsen"],
     "config_flow": true,
     "iot_class": "local_polling",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "requirements": ["aiohttp>=3.8.0"]
 }
