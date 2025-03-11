@@ -1,7 +1,6 @@
 """The Ollama Vision integration."""
 import logging
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.typing import ConfigType
@@ -11,7 +10,6 @@ from homeassistant.const import CONF_NAME, Platform
 import homeassistant.helpers.entity_registry as er
 from homeassistant.helpers.device_registry import async_get as async_get_device_registry
 from homeassistant.util import slugify
-
 from .const import (
     DOMAIN,
     CONF_HOST,
@@ -43,7 +41,6 @@ from .const import (
 from .api import OllamaClient
 
 _LOGGER = logging.getLogger(__name__)
-
 PLATFORMS = [Platform.SENSOR]
 
 # Service schema
@@ -62,6 +59,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Ollama Vision component."""
     hass.data[DOMAIN] = {}
     hass.data[DOMAIN]["pending_sensors"] = {}
+    hass.data[DOMAIN]["created_sensors"] = {}
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -114,8 +112,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         }
     }
     
-    # Rest of the function remains the same
-
     # Create service handler wrapper
     @callback
     def async_handle_service(call):
@@ -129,7 +125,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async_handle_service,
         schema=ANALYZE_IMAGE_SCHEMA,
     )
-
+    
     # Check if the text model is enabled and remove the sensor if it exists and the model is disabled
     if not text_model_enabled:
         ent_registry = er.async_get(hass)
@@ -141,7 +137,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if text_sensor_entity_id:
             # Remove it, so it disappears from Home Assistant entirely
             ent_registry.async_remove(text_sensor_entity_id)
-
+    
     # Create update listener
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     
@@ -150,11 +146,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     return True
 
-
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update."""
     await hass.config_entries.async_reload(entry.entry_id)
-
 
 # Define the analyze_image service outside of async_setup_entry
 async def handle_analyze_image(hass, call):
@@ -165,6 +159,9 @@ async def handle_analyze_image(hass, call):
     device_id = call.data.get(ATTR_DEVICE_ID)
     use_text_model = call.data.get(ATTR_USE_TEXT_MODEL, False)
     text_prompt = call.data.get(ATTR_TEXT_PROMPT, DEFAULT_TEXT_PROMPT)
+    
+    # Properly slugify the image name to ensure consistent IDs
+    slugified_image_name = slugify(image_name)
     
     # Determine which integration to use based on device_id
     entry_id_to_use = None
@@ -192,13 +189,11 @@ async def handle_analyze_image(hass, call):
             # Means there are no configured integrations at all
             raise HomeAssistantError("No configured Ollama Vision entries found. "
                                     "Please add at least one config entry or specify device_id.")
-
         if len(valid_entry_ids) > 1 and not device_id:
             _LOGGER.warning(
                 "Multiple Ollama Vision instances found but no device_id specified. "
                 "Using first available. Specify device_id parameter to target a specific instance."
             )
-
         # Pick the first valid entry
         entry_id_to_use = valid_entry_ids[0]
     
@@ -227,24 +222,24 @@ async def handle_analyze_image(hass, call):
         "description": vision_description,
         "image_url": image_url,
         "prompt": vision_prompt,
-        "unique_id": f"{DOMAIN}_{entry_id_to_use}_{image_name}",
+        "unique_id": f"{entry_id_to_use}_{slugified_image_name}",
         "final_description": final_description if (use_text_model and text_model_enabled) else None,
         "text_prompt": text_prompt_formatted,
         "used_text_model": use_text_model and text_model_enabled
     }
-
+    
     # Fire event for sensor creation/update
     hass.bus.async_fire(f"{DOMAIN}_create_sensor", {
         "entry_id": entry_id_to_use,
         "image_name": image_name
     })
-
+    
+    # Try to update existing sensor if it exists
     created_sensors = hass.data[DOMAIN].setdefault("created_sensors", {})
-    sensor_unique_id = f"{entry_id_to_use}_{slugify(image_name)}"
-
+    sensor_unique_id = f"{entry_id_to_use}_{slugified_image_name}"
     if sensor_unique_id in created_sensors:
-            created_sensors[sensor_unique_id].async_update_from_pending()        
-
+        created_sensors[sensor_unique_id].async_update_from_pending()
+    
     # Fire user-facing event with all relevant fields
     event_data = {
         "integration_id": entry_id_to_use,
@@ -256,8 +251,7 @@ async def handle_analyze_image(hass, call):
         "text_prompt": text_prompt_formatted,
         "final_description": final_description,
     }
-    hass.bus.async_fire(EVENT_IMAGE_ANALYZED, event_data)    
-
+    hass.bus.async_fire(EVENT_IMAGE_ANALYZED, event_data)
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
@@ -266,14 +260,27 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     if unload_ok:
         # Check if this is the last instance of the integration
-        if len(hass.data[DOMAIN]) <= 1:
+        valid_entries = [k for k, v in hass.data[DOMAIN].items() 
+                         if isinstance(v, dict) and "client" in v]
+        
+        if len(valid_entries) <= 1:
             # Unregister service if this is the last instance
             hass.services.async_remove(DOMAIN, SERVICE_ANALYZE_IMAGE)
         
         # Remove data for this entry
-        hass.data[DOMAIN].pop(entry.entry_id)
+        if entry.entry_id in hass.data[DOMAIN]:
+            hass.data[DOMAIN].pop(entry.entry_id)
+        
         if entry.entry_id in hass.data[DOMAIN].get("pending_sensors", {}):
             hass.data[DOMAIN]["pending_sensors"].pop(entry.entry_id)
+        
+        # Clean up created_sensors that belong to this entry
+        created_sensors = hass.data[DOMAIN].get("created_sensors", {})
+        sensors_to_remove = [uid for uid in list(created_sensors.keys()) 
+                            if uid.startswith(f"{entry.entry_id}_")]
+        
+        for uid in sensors_to_remove:
+            created_sensors.pop(uid, None)
     
     return unload_ok
 
