@@ -107,6 +107,8 @@ actions:
 
 This either creates or updates a sensor named something like `sensor.<integration_name>_person_outside` containing your model’s description. You may also provide the `prompt` parameter if you want to change the default parameter used for the vision model; for example if you want to try and make it read license plates or give it other more specific tasks.
 
+**NOTE!** The first time you call the analyze_image action after starting or restarting Ollama it will be slow. This is because Ollama needs to load its models into memory.
+
 ### Service Parameters
 
 | Parameter      | Required | Description                                                                                                           |
@@ -151,3 +153,38 @@ actions:
 ```
 
 This automation listens for the `ollama_vision_image_analyzed` event and sends a notification to your mobile device with the final text from the LLM.
+
+
+## Troubleshooting
+
+### Failed response from text Ollama: {"error":"llama runner process has terminated: error loading model: check_tensor_dims: tensor 'output.weight' not found"}
+
+These kinds of errors can typically mean you either run an unsupported model, or that you have installed a supported model, but you must update your Ollama server. To update on Linux, simply run:
+
+```
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+
+### Ollama stopped working from Home Assistant after ypgrade
+
+Check your ollama service file. Maybe Ollama reverted to only answer on localhost, not on your network. Override the Ollama default service file through an override-file that will survive upgrades.
+
+```
+sudo systemctl edit ollama
+
+# This will open a blank or a templated editor
+# Add the following text where the template tells  you to, or if it's a blank file, just paste the text to the file:
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0"
+Environment="OLLAMA_KEEP_ALIVE=-1"
+```
+
+Now save and exit, and run:   
+
+```
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+```
+
+You should be good again!

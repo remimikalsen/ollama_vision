@@ -13,7 +13,7 @@ DEFAULT_KEEPALIVE = -1
 DEFAULT_PORT = 11434
 DEFAULT_MODEL = "moondream"
 CONF_VISION_KEEPALIVE = "vision_keepalive"
-DEFAULT_PROMPT = "This image is from a security camera above my front door. If there are people in the image, describe thir genders, estimated ages, facial expressions (moods), hairstyles, notable facial features, and clothing styles clearly and concisely. If no people are present, describe what is on my porch clearly and concisely."
+DEFAULT_PROMPT = "Describe the image. How many people are there? What is their gender, hair style, age, mood, facial features and clothes?"
 
 # Service call constants
 SERVICE_ANALYZE_IMAGE = "analyze_image"
@@ -33,7 +33,7 @@ CONF_TEXT_MODEL = "text_model"
 DEFAULT_TEXT_PORT = 11434
 DEFAULT_TEXT_MODEL = "llama3.1"
 CONF_TEXT_KEEPALIVE = "text_keepalive"
-DEFAULT_TEXT_PROMPT = "You are an AI that introduces people who come to visit me. You are cheeky and love a roast. Based on the following description: <description>{description}</description> – introduce this guest to me. Keep it short and concise, in English."
+DEFAULT_TEXT_PROMPT = "You are an AI that describes people outside of my home. Give me a short brief based on the following description: <description>{description}</description>. Do it in English, and only give me a short brief, nothing else."
 
 # Textual model service call constants
 ATTR_USE_TEXT_MODEL = "use_text_model"
