@@ -13,7 +13,7 @@ analyze_image:
       name: "Vision Prompt"
       description: "Prompt to send to Ollama vision model with the image"
       required: false
-      default: "This image is from a security camera above my front door. If there are people in the image, describe thir genders, estimated ages, facial expressions (moods), hairstyles, notable facial features, and clothing styles clearly and concisely. If no people are present, describe what is on my porch clearly and concisely."
+      default: "Describe the image. How many people are there? What is their gender, hair style, age, mood, facial features and clothes?"
       selector:
         text:
     image_name:
@@ -41,6 +41,6 @@ analyze_image:
       name: "Text Prompt"
       description: "Prompt template for the text model. See the default template to learn how to reference the vision model's output."
       required: false
-      default: "You are an AI that introduces people who come to visit me. You are cheeky and love a roast. Based on the following description: <description>{description}</description> – introduce this guest to me. Keep it short and concise, in English."
+      default: "You are an AI that describes people outside of my home. Give me a short brief based on the following description: <description>{description}</description>. Do it in English, and only give me a short brief, nothing else."
       selector:
         text: 
