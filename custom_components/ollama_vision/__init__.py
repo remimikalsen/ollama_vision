@@ -9,6 +9,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.const import CONF_NAME, Platform
 import homeassistant.helpers.entity_registry as er
 from homeassistant.helpers.device_registry import async_get as async_get_device_registry
+from homeassistant.helpers.config_validation import config_entry_only_config_schema
 from homeassistant.util import slugify
 from .const import (
     DOMAIN,
@@ -42,6 +43,7 @@ from .api import OllamaClient
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [Platform.SENSOR]
+CONFIG_SCHEMA = config_entry_only_config_schema(DOMAIN)
 
 # Service schema
 ANALYZE_IMAGE_SCHEMA = vol.Schema(
