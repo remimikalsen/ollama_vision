@@ -1,5 +1,5 @@
 """Constants for the Ollama Vision integration."""
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 DOMAIN = "ollama_vision"
 INTEGRATION_NAME = "Ollama Vision"
 MANUFACTURER = "@remimikalsen (https://github.com/remimikalsen)"
