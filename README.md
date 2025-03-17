@@ -1,4 +1,6 @@
 ![Build Status](https://img.shields.io/github/actions/workflow/status/remimikalsen/ollama_vision/publish.yaml)
+![HACS Test](https://img.shields.io/github/actions/workflow/status/remimikalsen/ollama_vision/hacs.yaml?label=HACS)
+![Hassfest Test](https://img.shields.io/github/actions/workflow/status/remimikalsen/ollama_vision/hassfest.yaml?label=Hassfest)
 ![License](https://img.shields.io/github/license/remimikalsen/ollama_vision)
 ![Version](https://img.shields.io/github/tag/remimikalsen/ollama_vision)
 

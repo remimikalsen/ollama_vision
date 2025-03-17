@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
 
       - name: Start SSH agent with deploy key
