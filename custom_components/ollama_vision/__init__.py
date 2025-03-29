@@ -88,7 +88,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         text_model = entry.data.get(CONF_TEXT_MODEL) or entry.options.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
         text_keepalive = entry.data.get(CONF_TEXT_KEEPALIVE) or entry.options.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
     
-    client = OllamaClient(host, port, model, text_host, text_port, text_model, vision_keepalive, text_keepalive)
+    client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, text_keepalive)
     
     # Store the client in hass.data
     hass.data[DOMAIN][entry.entry_id] = {
@@ -217,6 +217,12 @@ async def handle_analyze_image(hass, call):
     if use_text_model and text_model_enabled:
         text_prompt_formatted = text_prompt.format(description=vision_description)
         final_description = await client_to_use.elaborate_text(vision_description, text_prompt_formatted)
+    
+    # Replace 'www/' with 'local/' if applicable
+    # If the image is within /config/www, it will actually 
+    # be displayed in companion app notifications
+    if image_url.startswith("www/"):
+        image_url = image_url.replace("www/", "local/", 1)
     
     # Store data so the sensor can display it
     pending_sensors = hass.data[DOMAIN].setdefault("pending_sensors", {}).setdefault(entry_id_to_use, {})

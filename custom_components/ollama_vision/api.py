@@ -1,4 +1,6 @@
 """API client for Ollama Vision (collecting NDJSON lines)."""
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+import os
 import logging
 import aiohttp
 import base64
@@ -12,6 +14,7 @@ class OllamaClient:
 
     def __init__(
         self,
+        hass,
         host,
         port,
         model,
@@ -21,6 +24,7 @@ class OllamaClient:
         vision_keepalive=-1,
         text_keepalive=-1,
     ):
+        self.hass = hass
         self.host = host
         self.port = port
         self.model = model
@@ -42,16 +46,105 @@ class OllamaClient:
         Concatenate the .response fields into one final string, or return None on error.
         """
         try:
-            # 1) Download the image
-            async with aiohttp.ClientSession() as session:
-                async with session.get(image_url) as resp:
+            # 1) Get image data
+            # a) Directly from an internal API
+            if image_url.startswith("/api"):
+                full_url = f"{self.hass.config.internal_url.rstrip('/')}{image_url}"
+                session = async_get_clientsession(self.hass)
+
+                async with session.get(full_url) as resp:
                     if resp.status != 200:
-                        _LOGGER.error("Failed to fetch image from URL: %s", image_url)
+                        _LOGGER.error("Failed to fetch image from URL: %s", full_url)
                         return None
                     image_data = await resp.read()
 
+            # b) External URL
+            elif image_url.startswith("http://") or image_url.startswith("https://"):
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(image_url) as resp:
+                            if resp.status != 200:
+                                _LOGGER.error(
+                                    "Failed to fetch external image (Status: %s, URL: %s)", 
+                                    resp.status, 
+                                    image_url
+                                )
+                                return None
+                            
+                            try:
+                                image_data = await resp.read()
+                            except Exception as read_exc:
+                                _LOGGER.error(
+                                    "Error reading image data from external URL (URL: %s): %s", 
+                                    image_url, 
+                                    str(read_exc)
+                                )
+                                return None
+
+                except aiohttp.ClientError as client_exc:
+                    _LOGGER.error(
+                        "Client error fetching external image (URL: %s): %s", 
+                        image_url, 
+                        str(client_exc)
+                    )
+                    return None
+                except Exception as fetch_exc:
+                    _LOGGER.error(
+                        "Unexpected error fetching external image (URL: %s): %s", 
+                        image_url, 
+                        str(fetch_exc)
+                    )
+                    return None
+
+            # c) Local File
+            else:
+                try:
+                    full_path = self.hass.config.path(image_url)
+                    
+                    # Check file existence in executor
+                    file_exists = await self.hass.async_add_executor_job(
+                        os.path.isfile, full_path
+                    )
+                    if not file_exists:
+                        _LOGGER.error("Local image file not found: %s", image_url)
+                        return None
+
+                    # Read file contents in executor
+                    try:
+                        image_data = await self.hass.async_add_executor_job(
+                            lambda: open(full_path, "rb").read()
+                        )
+                    except IOError as io_exc:
+                        _LOGGER.error(
+                            "IO Error reading local image file (Path: %s): %s", 
+                            full_path, 
+                            str(io_exc)
+                        )
+                        return None
+
+                except Exception as local_exc:
+                    _LOGGER.error(
+                        "Unexpected error accessing local image file (Path: %s): %s", 
+                        image_url, 
+                        str(local_exc)
+                    )
+                    return None
+
+            # Validate image data
+            if not image_data:
+                _LOGGER.error("No image data retrieved for URL: %s", image_url)
+                return None
+
             # 2) Convert to Base64
-            image_base64 = base64.b64encode(image_data).decode("utf-8")
+            try:
+                image_base64 = base64.b64encode(image_data).decode("utf-8")
+            except Exception as base64_exc:
+                _LOGGER.error(
+                    "Error encoding image to base64 (URL: %s): %s", 
+                    image_url, 
+                    str(base64_exc)
+                )
+                return None
 
             # 3) Build request payload with stream=true
             payload = {
@@ -78,9 +171,12 @@ class OllamaClient:
                     final_text = await self._collect_ndjson(gen_response)
                     return final_text
 
-        except Exception as exc:  # pylint: disable=broad-except
-            _LOGGER.error("Error analyzing image: %s", exc)
+        except Exception as exc:
+            _LOGGER.error("Comprehensive error in image analysis (URL: %s): %s", image_url, exc)
             return None
+
+
+
 
     async def elaborate_text(self, text: str, prompt_template: str) -> str:
         """
