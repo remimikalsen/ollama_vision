@@ -1,0 +1,93 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Koble til Ollama Vision",
+          "description": "Legg inn detaljene for å koble til din Ollama Vision-modell.",
+          "data": {
+            "name": "Navn",
+            "host": "Vision-vert",
+            "port": "Vision-port",
+            "model": "Vision-modell",
+            "vision_keepalive": "Vision-modell keep-alive (-1 for alltid på)",
+            "text_model_enabled": "Aktiver tekstmodell"
+          }
+        },
+        "text_model": {
+          "title": "Tekstmodell-konfigurasjon",
+          "description": "Legg inn detaljene for din Ollama tekstmodell.",
+          "data": {
+            "text_host": "Tekstmodell-vert",
+            "text_port": "Tekstmodell-port",
+            "text_model": "Tekstmodell",
+            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)"
+          }
+        }
+      },
+      "error": {
+        "cannot_connect": "Kan ikke koble til Ollama",
+        "unknown": "En uventet feil oppstod",
+        "required": "Dette feltet er påkrevd"
+      },
+      "abort": {
+        "already_configured": "Ollama Vision er allerede konfigurert"
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+            "title": "Ollama Vision-innstillinger",
+            "description": "Juster innstillingene for din Ollama Vision-integrasjon.",
+            "data": {
+            "host": "Vision-vert",
+            "port": "Vision-port",
+            "model": "Vision-modell",
+            "vision_keepalive": "Vision-modell Keep-Alive (-1 for alltid på)",
+            "text_model_enabled": "Aktiver Tekstmodell"
+            }
+        },
+        "text_model_options": {
+            "title": "Tekstmodell-innstillinger",
+            "description": "Skriv inn detaljene for din Ollama Tekstmodell.",
+            "data": {
+            "text_host": "Tekstmodell-vert",
+            "text_port": "Tekstmodell-port",
+            "text_model": "Tekstmodell",
+            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)"
+            }
+        }
+        }
+    },
+    "services": {
+      "analyze_image": {
+        "name": "Analyser bilde",
+        "description": "Send et bilde til Ollama for analyse og opprett en sensor med resultatet. Valgfritt: utdyp beskrivelsen med en tekstmodell.",
+        "fields": {
+          "image_url": {
+            "name": "Bilde-URL",
+            "description": "URL til bildet som skal analyseres."
+          },
+          "prompt": {
+            "name": "Vision-prompt",
+            "description": "Prompt som skal sendes til Ollama vision-modell med bildet."
+          },
+          "image_name": {
+            "name": "Bildenavn",
+            "description": "Unikt navn for dette bildet (brukes for sensornavngivning)."
+          },
+          "device_id": {
+            "name": "Konfigurasjon",
+            "description": "Velg Ollama Vision-enheten som skal brukes for denne analysen. En enhet representerer en spesifikk vision- og tekstmodell."
+          },
+          "use_text_model": {
+            "name": "Bruk tekstmodell",
+            "description": "Om tekstmodellen skal brukes for å utdype vision-modellens beskrivelse."
+          },
+          "text_prompt": {
+            "name": "Tekst-prompt",
+            "description": "Prompt-mal for tekstmodellen. Se standardmalen for å lære hvordan du refererer til vision-modellens utdata."
+          }
+        }
+      }
+    }
+  } 

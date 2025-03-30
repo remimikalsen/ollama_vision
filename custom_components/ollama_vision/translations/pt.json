@@ -1,0 +1,93 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Conectar ao Ollama Vision",
+          "description": "Insira os detalhes para conectar ao teu modelo Ollama Vision.",
+          "data": {
+            "name": "Nome",
+            "host": "Host do Vision",
+            "port": "Porta do Vision",
+            "model": "Modelo Vision",
+            "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
+            "text_model_enabled": "Ativar Modelo de Texto"
+          }
+        },
+        "text_model": {
+          "title": "Configuração do Modelo de Texto",
+          "description": "Insira os detalhes para o teu modelo Ollama de Texto.",
+          "data": {
+            "text_host": "Host do Modelo de Texto",
+            "text_port": "Porta do Modelo de Texto",
+            "text_model": "Modelo de Texto",
+            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)"
+          }
+        }
+      },
+      "error": {
+        "cannot_connect": "Não é possível conectar ao Ollama",
+        "unknown": "Ocorreu um erro inesperado",
+        "required": "Este campo é obrigatório"
+      },
+      "abort": {
+        "already_configured": "Ollama Vision já está configurado"
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+            "title": "Opções do Ollama Vision",
+            "description": "Ajuste as configurações da sua integração Ollama Vision.",
+            "data": {
+            "host": "Host do Vision",
+            "port": "Porta do Vision",
+            "model": "Modelo Vision",
+            "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
+            "text_model_enabled": "Ativar Modelo de Texto"
+            }
+        },
+        "text_model_options": {
+            "title": "Opções do Modelo de Texto",
+            "description": "Insira os detalhes para seu modelo Ollama de Texto.",
+            "data": {
+            "text_host": "Host do Modelo de Texto",
+            "text_port": "Porta do Modelo de Texto",
+            "text_model": "Modelo de Texto",
+            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)"
+            }
+        }
+        }
+    },
+    "services": {
+      "analyze_image": {
+        "name": "Analisar Imagem",
+        "description": "Envie uma imagem para o Ollama para análise e crie um sensor com o resultado. Opcionalmente, elabore a descrição com um modelo de texto.",
+        "fields": {
+          "image_url": {
+            "name": "URL da Imagem",
+            "description": "URL da imagem para análise."
+          },
+          "prompt": {
+            "name": "Prompt do Vision",
+            "description": "Prompt para enviar ao modelo vision do Ollama com a imagem."
+          },
+          "image_name": {
+            "name": "Nome da Imagem",
+            "description": "Nome único para esta imagem (usado para nomear o sensor)."
+          },
+          "device_id": {
+            "name": "Configuração",
+            "description": "Escolha o dispositivo Ollama Vision para usar nesta análise. Um dispositivo representa um modelo vision e de texto específico."
+          },
+          "use_text_model": {
+            "name": "Usar Modelo de Texto",
+            "description": "Se deve usar o modelo de texto para elaborar a descrição do modelo vision."
+          },
+          "text_prompt": {
+            "name": "Prompt de Texto",
+            "description": "Modelo de prompt para o modelo de texto. Veja o modelo padrão para aprender como referenciar a saída do modelo vision."
+          }
+        }
+      }
+    }
+  } 
