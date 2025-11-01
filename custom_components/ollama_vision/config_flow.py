@@ -2,6 +2,7 @@
 import logging
 import aiohttp
 import voluptuous as vol
+from urllib.parse import urlparse
 
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -28,6 +29,90 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _parse_url_or_host_port(url_or_host, port=None):
+    """
+    Parse either a full URL (e.g., http://server.example.com/subpath), hostname:port, or hostname.
+    
+    Returns a tuple of (protocol, host, port, path) where:
+    - protocol: 'http' or 'https'
+    - host: hostname or IP
+    - port: port number (int)
+    - path: path component (e.g., '/subpath') or empty string
+    
+    Supported formats:
+    - Full URL: http://server.example.com/subpath
+    - Hostname with port: 192.168.1.1:11434
+    - Hostname only: 192.168.1.1 (defaults to port 11434)
+    
+    If url_or_host is a full URL, port parameter is ignored.
+    If url_or_host contains hostname:port, port parameter is ignored.
+    """
+    url_or_host_str = str(url_or_host).strip()
+    
+    # Check if it looks like a full URL
+    if url_or_host_str.startswith("http://") or url_or_host_str.startswith("https://"):
+        try:
+            parsed = urlparse(url_or_host_str)
+            protocol = parsed.scheme
+            host = parsed.hostname
+            parsed_port = parsed.port
+            
+            # Default ports based on protocol
+            if parsed_port is None:
+                if protocol == "https":
+                    parsed_port = 443
+                else:
+                    parsed_port = 80
+            
+            path = parsed.path.rstrip('/')  # Remove trailing slash if present
+            
+            return protocol, host, parsed_port, path
+        except Exception as e:
+            _LOGGER.warning(f"Failed to parse URL '{url_or_host_str}': {e}. Treating as hostname.")
+            # Fall through to hostname handling
+    
+    # Check if it's in hostname:port format
+    if ':' in url_or_host_str and not url_or_host_str.startswith('http'):
+        try:
+            # Split on the last colon to handle IPv6 addresses
+            parts = url_or_host_str.rsplit(':', 1)
+            if len(parts) == 2:
+                host_part = parts[0]
+                port_part = parts[1]
+                # Try to parse port
+                try:
+                    parsed_port = int(port_part)
+                    return "http", host_part, parsed_port, ""
+                except ValueError:
+                    # Not a valid port, treat as hostname with colons (IPv6)
+                    pass
+        except Exception:
+            pass
+    
+    # Treat as hostname only (backward compatibility)
+    # Use provided port or default to 11434 (Ollama default)
+    parsed_port = port if port is not None else 11434
+    
+    return "http", url_or_host_str, int(parsed_port), ""
+
+
+def _build_api_url(host, port=None, endpoint="version"):
+    """
+    Build API URL from host and optional port, handling both full URLs and hostname:port.
+    
+    Args:
+        host: Either a full URL (http://server.example.com/subpath) or hostname
+        port: Port number (optional, ignored if host is a full URL, defaults to 11434)
+        endpoint: API endpoint (default: 'version')
+    
+    Returns:
+        Full API URL string
+    """
+    protocol, parsed_host, parsed_port, path = _parse_url_or_host_port(host, port)
+    base_path = path if path else ""
+    return f"{protocol}://{parsed_host}:{parsed_port}{base_path}/api/{endpoint}"
+
+
 class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Ollama Vision."""
 
@@ -46,7 +131,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # Test connection to Ollama vision server
             try:
                 session = aiohttp.ClientSession()
-                api_url = f"http://{user_input[CONF_HOST]}:{user_input[CONF_PORT]}/api/version"
+                api_url = _build_api_url(user_input[CONF_HOST], None, "version")
                 async with session.get(api_url) as response:
                     if response.status == 200:
                         await session.close()
@@ -74,7 +159,6 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({
                 vol.Required(CONF_NAME): str,
                 vol.Required(CONF_HOST): str,
-                vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
                 vol.Required(CONF_MODEL, default=DEFAULT_MODEL): str,
                 vol.Required(CONF_VISION_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
                 vol.Optional(CONF_TEXT_MODEL_ENABLED, default=False): bool,
@@ -90,7 +174,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # Test connection to text model Ollama server
             try:
                 session = aiohttp.ClientSession()
-                api_url = f"http://{user_input[CONF_TEXT_HOST]}:{user_input[CONF_TEXT_PORT]}/api/version"
+                api_url = _build_api_url(user_input[CONF_TEXT_HOST], None, "version")
                 async with session.get(api_url) as response:
                     if response.status == 200:
                         await session.close()
@@ -113,7 +197,6 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="text_model",
             data_schema=vol.Schema({
                 vol.Required(CONF_TEXT_HOST): str,
-                vol.Required(CONF_TEXT_PORT, default=DEFAULT_TEXT_PORT): int,
                 vol.Required(CONF_TEXT_MODEL, default=DEFAULT_TEXT_MODEL): str,
                 vol.Required(CONF_TEXT_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
             }),
@@ -147,15 +230,19 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
 
         options = self.config_entry.options
         data = self.config_entry.data
+        
+        # Migrate old config: combine host:port if port exists separately
+        existing_host = options.get(CONF_HOST, data.get(CONF_HOST, ""))
+        existing_port = options.get(CONF_PORT, data.get(CONF_PORT))
+        # If port exists and host doesn't already contain :port, combine them
+        if existing_port and existing_host and ':' not in existing_host and not existing_host.startswith('http'):
+            existing_host = f"{existing_host}:{existing_port}"
+        
         schema = vol.Schema({
             vol.Required(
                 CONF_HOST,
-                default=options.get(CONF_HOST, data.get(CONF_HOST)),
+                default=existing_host,
             ): str,
-            vol.Required(
-                CONF_PORT,
-                default=options.get(CONF_PORT, data.get(CONF_PORT, DEFAULT_PORT)),
-            ): int,
             vol.Required(
                 CONF_MODEL,
                 default=options.get(CONF_MODEL, data.get(CONF_MODEL, DEFAULT_MODEL)),
@@ -183,15 +270,19 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
 
         options = self.config_entry.options
         data = self.config_entry.data
+        
+        # Migrate old config: combine host:port if port exists separately
+        existing_text_host = options.get(CONF_TEXT_HOST, data.get(CONF_TEXT_HOST, ""))
+        existing_text_port = options.get(CONF_TEXT_PORT, data.get(CONF_TEXT_PORT))
+        # If port exists and host doesn't already contain :port, combine them
+        if existing_text_port and existing_text_host and ':' not in existing_text_host and not existing_text_host.startswith('http'):
+            existing_text_host = f"{existing_text_host}:{existing_text_port}"
+        
         schema = vol.Schema({
             vol.Required(
                 CONF_TEXT_HOST,
-                default=options.get(CONF_TEXT_HOST, data.get(CONF_TEXT_HOST, "")),
+                default=existing_text_host,
             ): str,
-            vol.Required(
-                CONF_TEXT_PORT,
-                default=options.get(CONF_TEXT_PORT, data.get(CONF_TEXT_PORT, DEFAULT_TEXT_PORT)),
-            ): int,
             vol.Required(
                 CONF_TEXT_MODEL,
                 default=options.get(CONF_TEXT_MODEL, data.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)),

@@ -54,21 +54,27 @@ To install the "Ollama Vision" integration in Home Assistant, follow these steps
 After restarting Home Assistant, go to Settings → Devices & Services.
 
  1. Click + Add Integration.
- 2. Search for “Ollama Vision” and select it.
- 3. You’ll be prompted to configure:
+ 2. Search for "Ollama Vision" and select it.
+ 3. You'll be prompted to configure:
 
  - **Name**: A name for this Ollama Vision instance
- - **Vision Host**: Hostname/IP for your Ollama server running the vision-enabled model
- - **Vision Port**: Port for the vision server (default: 11434)
+ - **Vision Host**: Host address for your Ollama server running the vision-enabled model. Accepts:
+   - Full URL with path: `http://server.example.com/subpath` or `https://server.example.com/subpath`
+   - Hostname with port: `192.168.1.1:11434`
+   - Hostname only: `192.168.1.1` (defaults to port 11434)
  - **Vision Model**: The vision-capable model name (default: moondream)
  - **Vision Model Keep-Alive**: Keep this model loaded in memory (-1 for indefinite)
  - **Enable Text Model**: Toggle a separate text model for enhanced descriptions
- - **Text Model Host**: Hostname/IP for the optional text-model server
- - **Text Model Port**: Port for the text-model server (default: 11434)
+ - **Text Model Host**: Host address for the optional text-model server. Accepts the same formats as Vision Host:
+   - Full URL with path: `http://server.example.com/subpath` or `https://server.example.com/subpath`
+   - Hostname with port: `192.168.1.1:11434`
+   - Hostname only: `192.168.1.1` (defaults to port 11434)
  - **Text Model**: The text model name (default: llama3.1)
  - **Text Model Keep-Alive**: Keep the text model loaded in memory (-1 for indefinite)
 
 Click Submit to save. You can add multiple Ollama Vision configurations (each with a different name or model) if you wish; each configuration will appear as a device with its own sensors.
+
+**Note for existing installations**: If you have existing configurations with separate host and port fields, they will be automatically migrated to the `hostname:port` format when you edit them in the options flow.
 
 ## Usage
 
