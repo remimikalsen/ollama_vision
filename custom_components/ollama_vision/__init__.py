@@ -68,6 +68,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Ollama Vision from a config entry."""
     host = entry.data.get(CONF_HOST) or entry.options.get(CONF_HOST)
     port = entry.data.get(CONF_PORT) or entry.options.get(CONF_PORT)
+    
+    # Migrate old config: combine host:port if port exists separately
+    if port and host and ':' not in host and not host.startswith('http'):
+        host = f"{host}:{port}"
+        port = None
+    
     model = entry.data.get(CONF_MODEL) or entry.options.get(CONF_MODEL)
     name = entry.data.get(CONF_NAME)
     vision_keepalive = entry.data.get(CONF_VISION_KEEPALIVE) or entry.options.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
@@ -84,7 +90,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     if text_model_enabled:
         text_host = entry.data.get(CONF_TEXT_HOST) or entry.options.get(CONF_TEXT_HOST)
-        text_port = entry.data.get(CONF_TEXT_PORT) or entry.options.get(CONF_TEXT_PORT, DEFAULT_TEXT_PORT)
+        text_port = entry.data.get(CONF_TEXT_PORT) or entry.options.get(CONF_TEXT_PORT)
+        
+        # Migrate old text config: combine host:port if port exists separately
+        if text_port and text_host and ':' not in text_host and not text_host.startswith('http'):
+            text_host = f"{text_host}:{text_port}"
+            text_port = None
+        
         text_model = entry.data.get(CONF_TEXT_MODEL) or entry.options.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
         text_keepalive = entry.data.get(CONF_TEXT_KEEPALIVE) or entry.options.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
     
@@ -95,13 +107,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "client": client,
         "sensors": {},
         "config": {
-            CONF_HOST: host,
-            CONF_PORT: port,
+            CONF_HOST: host,  # host may contain hostname:port or full URL
             CONF_MODEL: model,
             CONF_NAME: name,
             CONF_TEXT_MODEL_ENABLED: text_model_enabled,
-            CONF_TEXT_HOST: text_host,
-            CONF_TEXT_PORT: text_port,
+            CONF_TEXT_HOST: text_host,  # host may contain hostname:port or full URL
             CONF_TEXT_MODEL: text_model,
             CONF_TEXT_KEEPALIVE: text_keepalive
         },
