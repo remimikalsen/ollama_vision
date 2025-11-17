@@ -10,7 +10,13 @@
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
-            "text_model_enabled": "Enable Text Model"
+            "text_model_enabled": "Enable Text Model",
+            "vision_temperature": "Creativity Level (0.0-2.0)",
+            "vision_top_p": "Response Variety (0.0-1.0)",
+            "vision_top_k": "Token Selection Limit (1-100)",
+            "vision_repeat_penalty": "Repetition Control (0.0-2.0)",
+            "vision_seed": "Random Seed (0=random)",
+            "vision_num_predict": "Max Response Length (-1=unlimited)"
           }
         },
         "text_model": {
@@ -20,7 +26,13 @@
             "text_host": "Text Model Host",
             "text_port": "Text Model Port",
             "text_model": "Text Model",
-            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)"
+            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)",
+            "text_temperature": "Creativity Level (0.0-2.0)",
+            "text_top_p": "Response Variety (0.0-1.0)",
+            "text_top_k": "Token Selection Limit (1-100)",
+            "text_repeat_penalty": "Repetition Control (0.0-2.0)",
+            "text_seed": "Random Seed (0=random)",
+            "text_num_predict": "Max Response Length (-1=unlimited)"
           }
         }
       },
@@ -43,7 +55,13 @@
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
-            "text_model_enabled": "Enable Text Model"
+            "text_model_enabled": "Enable Text Model",
+            "vision_temperature": "Creativity Level (0.0-2.0)",
+            "vision_top_p": "Response Variety (0.0-1.0)",
+            "vision_top_k": "Token Selection Limit (1-100)",
+            "vision_repeat_penalty": "Repetition Control (0.0-2.0)",
+            "vision_seed": "Random Seed (0=random)",
+            "vision_num_predict": "Max Response Length (-1=unlimited)"
             }
         },
         "text_model_options": {
@@ -53,7 +71,13 @@
             "text_host": "Text Model Host",
             "text_port": "Text Model Port",
             "text_model": "Text Model",
-            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)"
+            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)",
+            "text_temperature": "Creativity Level (0.0-2.0)",
+            "text_top_p": "Response Variety (0.0-1.0)",
+            "text_top_k": "Token Selection Limit (1-100)",
+            "text_repeat_penalty": "Repetition Control (0.0-2.0)",
+            "text_seed": "Random Seed (0=random)",
+            "text_num_predict": "Max Response Length (-1=unlimited)"
             }
         }
         }
@@ -86,6 +110,54 @@
           "text_prompt": {
             "name": "Text Prompt",
             "description": "Prompt template for the text model. See the default template to learn how to reference the vision model's output."
+          },
+          "vision_temperature": {
+            "name": "Creativity Level (Vision)",
+            "description": "Controls randomness and creativity in vision model responses (0.0-2.0). Lower values make the model more focused, higher values increase creativity."
+          },
+          "vision_top_p": {
+            "name": "Response Variety (Vision)",
+            "description": "Controls diversity of responses (0.0-1.0). Lower values produce more focused outputs, higher values allow more variety."
+          },
+          "vision_top_k": {
+            "name": "Token Selection Limit (Vision)",
+            "description": "Limits the number of tokens considered at each step (1-100). Lower values make responses more focused."
+          },
+          "vision_repeat_penalty": {
+            "name": "Repetition Control (Vision)",
+            "description": "Penalizes repetitive text (0.0-2.0). Values above 1.0 discourage repetition."
+          },
+          "vision_seed": {
+            "name": "Random Seed (Vision)",
+            "description": "Set a specific seed for reproducible results. Use 0 for random results."
+          },
+          "vision_num_predict": {
+            "name": "Max Response Length (Vision)",
+            "description": "Maximum number of tokens to generate. Use -1 for unlimited."
+          },
+          "text_temperature": {
+            "name": "Creativity Level (Text)",
+            "description": "Controls randomness and creativity in text model responses (0.0-2.0). Lower values make the model more focused, higher values increase creativity."
+          },
+          "text_top_p": {
+            "name": "Response Variety (Text)",
+            "description": "Controls diversity of responses (0.0-1.0). Lower values produce more focused outputs, higher values allow more variety."
+          },
+          "text_top_k": {
+            "name": "Token Selection Limit (Text)",
+            "description": "Limits the number of tokens considered at each step (1-100). Lower values make responses more focused."
+          },
+          "text_repeat_penalty": {
+            "name": "Repetition Control (Text)",
+            "description": "Penalizes repetitive text (0.0-2.0). Values above 1.0 discourage repetition."
+          },
+          "text_seed": {
+            "name": "Random Seed (Text)",
+            "description": "Set a specific seed for reproducible results. Use 0 for random results."
+          },
+          "text_num_predict": {
+            "name": "Max Response Length (Text)",
+            "description": "Maximum number of tokens to generate. Use -1 for unlimited."
           }
         }
       }

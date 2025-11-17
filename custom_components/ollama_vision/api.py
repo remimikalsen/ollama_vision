@@ -91,10 +91,40 @@ class OllamaClient:
         text_model=None,
         vision_keepalive=-1,
         text_keepalive=-1,
+        # Vision model parameters
+        vision_temperature=0.8,
+        vision_top_p=0.9,
+        vision_top_k=40,
+        vision_repeat_penalty=1.1,
+        vision_seed=0,
+        vision_num_predict=128,
+        # Text model parameters
+        text_temperature=0.8,
+        text_top_p=0.9,
+        text_top_k=40,
+        text_repeat_penalty=1.1,
+        text_seed=0,
+        text_num_predict=128,
     ):
         self.hass = hass
         self.model = model
         self.vision_keepalive = vision_keepalive
+
+        # Vision model parameters
+        self.vision_temperature = vision_temperature
+        self.vision_top_p = vision_top_p
+        self.vision_top_k = vision_top_k
+        self.vision_repeat_penalty = vision_repeat_penalty
+        self.vision_seed = vision_seed
+        self.vision_num_predict = vision_num_predict
+
+        # Text model parameters
+        self.text_temperature = text_temperature
+        self.text_top_p = text_top_p
+        self.text_top_k = text_top_k
+        self.text_repeat_penalty = text_repeat_penalty
+        self.text_seed = text_seed
+        self.text_num_predict = text_num_predict
         
         # Parse vision host/URL
         vision_protocol, vision_host, vision_port, vision_path = _parse_url_or_host_port(host, port)
@@ -233,8 +263,19 @@ class OllamaClient:
                 "prompt": prompt,
                 "images": [image_base64],
                 "stream": True,
-                "keep_alive": self.vision_keepalive
+                "keep_alive": self.vision_keepalive,
+                "options": {
+                    "temperature": self.vision_temperature,
+                    "top_p": self.vision_top_p,
+                    "top_k": self.vision_top_k,
+                    "repeat_penalty": self.vision_repeat_penalty,
+                    "num_predict": self.vision_num_predict,
+                }
             }
+
+            # Only add seed if it's not 0 (0 means random)
+            if self.vision_seed != 0:
+                payload["options"]["seed"] = self.vision_seed
 
             _LOGGER.debug("Vision model: %s", self.model)
             _LOGGER.debug("Vision API: %s", self.api_base_url)
@@ -276,8 +317,19 @@ class OllamaClient:
                 "model": self.text_model,
                 "prompt": prompt,
                 "stream": True,
-                "keep_alive": self.text_keepalive
+                "keep_alive": self.text_keepalive,
+                "options": {
+                    "temperature": self.text_temperature,
+                    "top_p": self.text_top_p,
+                    "top_k": self.text_top_k,
+                    "repeat_penalty": self.text_repeat_penalty,
+                    "num_predict": self.text_num_predict,
+                }
             }
+
+            # Only add seed if it's not 0 (0 means random)
+            if self.text_seed != 0:
+                payload["options"]["seed"] = self.text_seed
 
             _LOGGER.debug("Text model: %s", self.text_model)
             _LOGGER.debug("Text API: %s", self.text_api_base_url)

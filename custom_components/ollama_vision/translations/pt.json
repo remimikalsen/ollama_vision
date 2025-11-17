@@ -10,7 +10,13 @@
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
-            "text_model_enabled": "Ativar Modelo de Texto"
+            "text_model_enabled": "Ativar Modelo de Texto",
+            "vision_temperature": "Nível de Criatividade (0.0-2.0)",
+            "vision_top_p": "Variedade de Resposta (0.0-1.0)",
+            "vision_top_k": "Limite de Seleção de Tokens (1-100)",
+            "vision_repeat_penalty": "Controle de Repetição (0.0-2.0)",
+            "vision_seed": "Semente Aleatória (0=aleatório)",
+            "vision_num_predict": "Comprimento Máximo da Resposta (-1=ilimitado)"
           }
         },
         "text_model": {
@@ -20,7 +26,13 @@
             "text_host": "Host do Modelo de Texto",
             "text_port": "Porta do Modelo de Texto",
             "text_model": "Modelo de Texto",
-            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)"
+            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)",
+            "text_temperature": "Nível de Criatividade (0.0-2.0)",
+            "text_top_p": "Variedade de Resposta (0.0-1.0)",
+            "text_top_k": "Limite de Seleção de Tokens (1-100)",
+            "text_repeat_penalty": "Controle de Repetição (0.0-2.0)",
+            "text_seed": "Semente Aleatória (0=aleatório)",
+            "text_num_predict": "Comprimento Máximo da Resposta (-1=ilimitado)"
           }
         }
       },
@@ -43,7 +55,13 @@
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
-            "text_model_enabled": "Ativar Modelo de Texto"
+            "text_model_enabled": "Ativar Modelo de Texto",
+            "vision_temperature": "Nível de Criatividade (0.0-2.0)",
+            "vision_top_p": "Variedade de Resposta (0.0-1.0)",
+            "vision_top_k": "Limite de Seleção de Tokens (1-100)",
+            "vision_repeat_penalty": "Controle de Repetição (0.0-2.0)",
+            "vision_seed": "Semente Aleatória (0=aleatório)",
+            "vision_num_predict": "Comprimento Máximo da Resposta (-1=ilimitado)"
             }
         },
         "text_model_options": {
@@ -53,7 +71,13 @@
             "text_host": "Host do Modelo de Texto",
             "text_port": "Porta do Modelo de Texto",
             "text_model": "Modelo de Texto",
-            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)"
+            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)",
+            "text_temperature": "Nível de Criatividade (0.0-2.0)",
+            "text_top_p": "Variedade de Resposta (0.0-1.0)",
+            "text_top_k": "Limite de Seleção de Tokens (1-100)",
+            "text_repeat_penalty": "Controle de Repetição (0.0-2.0)",
+            "text_seed": "Semente Aleatória (0=aleatório)",
+            "text_num_predict": "Comprimento Máximo da Resposta (-1=ilimitado)"
             }
         }
         }
@@ -86,6 +110,54 @@
           "text_prompt": {
             "name": "Prompt de Texto",
             "description": "Modelo de prompt para o modelo de texto. Veja o modelo padrão para aprender como referenciar a saída do modelo vision."
+          },
+          "vision_temperature": {
+            "name": "Nível de Criatividade (Vision)",
+            "description": "Controla aleatoriedade e criatividade nas respostas do modelo vision (0.0-2.0). Valores mais baixos tornam o modelo mais focado, valores mais altos aumentam a criatividade."
+          },
+          "vision_top_p": {
+            "name": "Variedade de Resposta (Vision)",
+            "description": "Controla diversidade de respostas (0.0-1.0). Valores mais baixos produzem saídas mais focadas, valores mais altos permitem mais variedade."
+          },
+          "vision_top_k": {
+            "name": "Limite de Seleção de Tokens (Vision)",
+            "description": "Limita o número de tokens considerados em cada passo (1-100). Valores mais baixos tornam as respostas mais focadas."
+          },
+          "vision_repeat_penalty": {
+            "name": "Controle de Repetição (Vision)",
+            "description": "Penaliza texto repetitivo (0.0-2.0). Valores acima de 1.0 desencorajam repetição."
+          },
+          "vision_seed": {
+            "name": "Semente Aleatória (Vision)",
+            "description": "Defina uma semente específica para resultados reproduzíveis. Use 0 para resultados aleatórios."
+          },
+          "vision_num_predict": {
+            "name": "Comprimento Máximo da Resposta (Vision)",
+            "description": "Número máximo de tokens para gerar. Use -1 para ilimitado."
+          },
+          "text_temperature": {
+            "name": "Nível de Criatividade (Texto)",
+            "description": "Controla aleatoriedade e criatividade nas respostas do modelo de texto (0.0-2.0). Valores mais baixos tornam o modelo mais focado, valores mais altos aumentam a criatividade."
+          },
+          "text_top_p": {
+            "name": "Variedade de Resposta (Texto)",
+            "description": "Controla diversidade de respostas (0.0-1.0). Valores mais baixos produzem saídas mais focadas, valores mais altos permitem mais variedade."
+          },
+          "text_top_k": {
+            "name": "Limite de Seleção de Tokens (Texto)",
+            "description": "Limita o número de tokens considerados em cada passo (1-100). Valores mais baixos tornam as respostas mais focadas."
+          },
+          "text_repeat_penalty": {
+            "name": "Controle de Repetição (Texto)",
+            "description": "Penaliza texto repetitivo (0.0-2.0). Valores acima de 1.0 desencorajam repetição."
+          },
+          "text_seed": {
+            "name": "Semente Aleatória (Texto)",
+            "description": "Defina uma semente específica para resultados reproduzíveis. Use 0 para resultados aleatórios."
+          },
+          "text_num_predict": {
+            "name": "Comprimento Máximo da Resposta (Texto)",
+            "description": "Número máximo de tokens para gerar. Use -1 para ilimitado."
           }
         }
       }

@@ -64,6 +64,12 @@ After restarting Home Assistant, go to Settings → Devices & Services.
    - Hostname only: `192.168.1.1` (defaults to port 11434)
  - **Vision Model**: The vision-capable model name (default: moondream)
  - **Vision Model Keep-Alive**: Keep this model loaded in memory (-1 for indefinite)
+ - **Creativity Level (Vision)**: Controls randomness and creativity (0.0-2.0, default: 0.8)
+ - **Response Variety (Vision)**: Controls diversity of responses (0.0-1.0, default: 0.9)
+ - **Token Selection Limit (Vision)**: Limits token choices (1-100, default: 40)
+ - **Repetition Control (Vision)**: Penalizes repetitive text (0.0-2.0, default: 1.1)
+ - **Random Seed (Vision)**: For reproducible results (0=random, default: 0)
+ - **Max Response Length (Vision)**: Maximum tokens to generate (-1=unlimited, default: 128)
  - **Enable Text Model**: Toggle a separate text model for enhanced descriptions
  - **Text Model Host**: Host address for the optional text-model server. Accepts the same formats as Vision Host:
    - Full URL with path: `http://server.example.com/subpath` or `https://server.example.com/subpath`
@@ -71,6 +77,12 @@ After restarting Home Assistant, go to Settings → Devices & Services.
    - Hostname only: `192.168.1.1` (defaults to port 11434)
  - **Text Model**: The text model name (default: llama3.1)
  - **Text Model Keep-Alive**: Keep the text model loaded in memory (-1 for indefinite)
+ - **Creativity Level (Text)**: Controls randomness and creativity (0.0-2.0, default: 0.8)
+ - **Response Variety (Text)**: Controls diversity of responses (0.0-1.0, default: 0.9)
+ - **Token Selection Limit (Text)**: Limits token choices (1-100, default: 40)
+ - **Repetition Control (Text)**: Penalizes repetitive text (0.0-2.0, default: 1.1)
+ - **Random Seed (Text)**: For reproducible results (0=random, default: 0)
+ - **Max Response Length (Text)**: Maximum tokens to generate (-1=unlimited, default: 128)
 
 Click Submit to save. You can add multiple Ollama Vision configurations (each with a different name or model) if you wish; each configuration will appear as a device with its own sensors.
 
@@ -192,14 +204,54 @@ The above examples either creates or updates a sensor named something like `sens
 
 ### Service Parameters
 
+#### Basic Parameters
+
 | Parameter      | Required | Description                                                                                                           |
 |----------------|----------|-----------------------------------------------------------------------------------------------------------------------|
 | image_url      | Yes      | URL of the image to analyze. Must be accessible to Home Assistant.                                                    |
 | image_name     | Yes      | Unique identifier for the image (also used in naming the sensor).                                                     |
-| prompt         | No       | Prompt sent to the vision model (default: a prompt asking for a clear description of any people, ages, expressions, and what’s on your porch). |
+| prompt         | No       | Prompt sent to the vision model (default: a prompt asking for a clear description of any people, ages, expressions, and what's on your porch). |
 | device_id      | No       | If you have multiple Ollama Vision devices configured, specify which device ID to use. If omitted, the service uses the first available Ollama Vision device. |
 | use_text_model | No       | Whether to use a second, specialized text model for elaboration (default: false).                                      |
 | text_prompt    | No       | Prompt for the text model, referencing {description} which is the output from the vision model (default: a short, cheeky introduction). |
+
+#### Vision Model Parameters (Optional Overrides)
+
+You can override the default model parameters for individual service calls. These settings control how the vision model generates responses:
+
+| Parameter              | Type  | Range      | Default | Description                                                                                           |
+|------------------------|-------|------------|---------|-------------------------------------------------------------------------------------------------------|
+| vision_temperature     | float | 0.0-2.0    | 0.8     | **Creativity Level**: Lower values (0.0-0.5) make output more focused and deterministic. Higher values (0.8-2.0) increase creativity and variation. |
+| vision_top_p           | float | 0.0-1.0    | 0.9     | **Response Variety**: Controls diversity using nucleus sampling. Lower values produce more focused outputs, higher values allow more variety. |
+| vision_top_k           | int   | 1-100      | 40      | **Token Selection Limit**: Limits the number of tokens considered at each step. Lower values (10-20) make responses more focused, higher values allow more variety. |
+| vision_repeat_penalty  | float | 0.0-2.0    | 1.1     | **Repetition Control**: Penalizes repetitive text. Values above 1.0 discourage repetition.           |
+| vision_seed            | int   | 0+         | 0       | **Random Seed**: Set a specific seed for reproducible results. Use 0 for random results.              |
+| vision_num_predict     | int   | -1 to 4096 | 128     | **Max Response Length**: Maximum number of tokens to generate. Use -1 for unlimited.                  |
+
+#### Text Model Parameters (Optional Overrides)
+
+Similar parameters are available for the text model when `use_text_model` is enabled:
+
+| Parameter              | Type  | Range      | Default | Description                                                                                           |
+|------------------------|-------|------------|---------|-------------------------------------------------------------------------------------------------------|
+| text_temperature       | float | 0.0-2.0    | 0.8     | **Creativity Level**: Controls randomness and creativity in text model responses.                     |
+| text_top_p             | float | 0.0-1.0    | 0.9     | **Response Variety**: Controls diversity of text model responses.                                     |
+| text_top_k             | int   | 1-100      | 40      | **Token Selection Limit**: Limits token choices in text model.                                        |
+| text_repeat_penalty    | float | 0.0-2.0    | 1.1     | **Repetition Control**: Penalizes repetitive text in text model output.                               |
+| text_seed              | int   | 0+         | 0       | **Random Seed**: For reproducible text model results.                                                 |
+| text_num_predict       | int   | -1 to 4096 | 128     | **Max Response Length**: Maximum tokens for text model to generate.                                   |
+
+**Example with parameter overrides:**
+
+```yaml
+action: ollama_vision.analyze_image
+data:
+  image_url: http://example.com/image.jpg
+  image_name: front_door
+  vision_temperature: 0.3  # More focused, deterministic output
+  vision_top_k: 20          # Limit variety for more consistent results
+  vision_num_predict: 256   # Allow longer responses
+```
 
 ### Events
 

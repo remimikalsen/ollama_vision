@@ -24,6 +24,27 @@ from .const import (
     CONF_VISION_KEEPALIVE,
     DEFAULT_KEEPALIVE,
     CONF_TEXT_KEEPALIVE,
+    # Vision model parameters
+    CONF_VISION_TEMPERATURE,
+    CONF_VISION_TOP_P,
+    CONF_VISION_TOP_K,
+    CONF_VISION_REPEAT_PENALTY,
+    CONF_VISION_SEED,
+    CONF_VISION_NUM_PREDICT,
+    # Text model parameters
+    CONF_TEXT_TEMPERATURE,
+    CONF_TEXT_TOP_P,
+    CONF_TEXT_TOP_K,
+    CONF_TEXT_REPEAT_PENALTY,
+    CONF_TEXT_SEED,
+    CONF_TEXT_NUM_PREDICT,
+    # Defaults
+    DEFAULT_TEMPERATURE,
+    DEFAULT_TOP_P,
+    DEFAULT_TOP_K,
+    DEFAULT_REPEAT_PENALTY,
+    DEFAULT_SEED,
+    DEFAULT_NUM_PREDICT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -162,6 +183,23 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_MODEL, default=DEFAULT_MODEL): str,
                 vol.Required(CONF_VISION_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
                 vol.Optional(CONF_TEXT_MODEL_ENABLED, default=False): bool,
+                # Vision Model Parameters
+                vol.Optional(CONF_VISION_TEMPERATURE, default=DEFAULT_TEMPERATURE): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.0, max=2.0)
+                ),
+                vol.Optional(CONF_VISION_TOP_P, default=DEFAULT_TOP_P): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.0, max=1.0)
+                ),
+                vol.Optional(CONF_VISION_TOP_K, default=DEFAULT_TOP_K): vol.All(
+                    vol.Coerce(int), vol.Range(min=1, max=100)
+                ),
+                vol.Optional(CONF_VISION_REPEAT_PENALTY, default=DEFAULT_REPEAT_PENALTY): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.0, max=2.0)
+                ),
+                vol.Optional(CONF_VISION_SEED, default=DEFAULT_SEED): vol.Coerce(int),
+                vol.Optional(CONF_VISION_NUM_PREDICT, default=DEFAULT_NUM_PREDICT): vol.All(
+                    vol.Coerce(int), vol.Range(min=-1, max=4096)
+                ),
             }),
             errors=errors,
         )
@@ -199,6 +237,23 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_TEXT_HOST): str,
                 vol.Required(CONF_TEXT_MODEL, default=DEFAULT_TEXT_MODEL): str,
                 vol.Required(CONF_TEXT_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
+                # Text Model Parameters
+                vol.Optional(CONF_TEXT_TEMPERATURE, default=DEFAULT_TEMPERATURE): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.0, max=2.0)
+                ),
+                vol.Optional(CONF_TEXT_TOP_P, default=DEFAULT_TOP_P): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.0, max=1.0)
+                ),
+                vol.Optional(CONF_TEXT_TOP_K, default=DEFAULT_TOP_K): vol.All(
+                    vol.Coerce(int), vol.Range(min=1, max=100)
+                ),
+                vol.Optional(CONF_TEXT_REPEAT_PENALTY, default=DEFAULT_REPEAT_PENALTY): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.0, max=2.0)
+                ),
+                vol.Optional(CONF_TEXT_SEED, default=DEFAULT_SEED): vol.Coerce(int),
+                vol.Optional(CONF_TEXT_NUM_PREDICT, default=DEFAULT_NUM_PREDICT): vol.All(
+                    vol.Coerce(int), vol.Range(min=-1, max=4096)
+                ),
             }),
             errors=errors,
         )
@@ -255,6 +310,31 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 CONF_TEXT_MODEL_ENABLED,
                 default=options.get(CONF_TEXT_MODEL_ENABLED, data.get(CONF_TEXT_MODEL_ENABLED, False)),
             ): bool,
+            # Vision Model Parameters
+            vol.Optional(
+                CONF_VISION_TEMPERATURE,
+                default=options.get(CONF_VISION_TEMPERATURE, data.get(CONF_VISION_TEMPERATURE, DEFAULT_TEMPERATURE)),
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+            vol.Optional(
+                CONF_VISION_TOP_P,
+                default=options.get(CONF_VISION_TOP_P, data.get(CONF_VISION_TOP_P, DEFAULT_TOP_P)),
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=1.0)),
+            vol.Optional(
+                CONF_VISION_TOP_K,
+                default=options.get(CONF_VISION_TOP_K, data.get(CONF_VISION_TOP_K, DEFAULT_TOP_K)),
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
+            vol.Optional(
+                CONF_VISION_REPEAT_PENALTY,
+                default=options.get(CONF_VISION_REPEAT_PENALTY, data.get(CONF_VISION_REPEAT_PENALTY, DEFAULT_REPEAT_PENALTY)),
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+            vol.Optional(
+                CONF_VISION_SEED,
+                default=options.get(CONF_VISION_SEED, data.get(CONF_VISION_SEED, DEFAULT_SEED)),
+            ): vol.Coerce(int),
+            vol.Optional(
+                CONF_VISION_NUM_PREDICT,
+                default=options.get(CONF_VISION_NUM_PREDICT, data.get(CONF_VISION_NUM_PREDICT, DEFAULT_NUM_PREDICT)),
+            ): vol.All(vol.Coerce(int), vol.Range(min=-1, max=4096)),
         })
         return self.async_show_form(
             step_id="init",
@@ -291,6 +371,31 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 CONF_TEXT_KEEPALIVE,
                 default=options.get(CONF_TEXT_KEEPALIVE, data.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)),
             ): int,
+            # Text Model Parameters
+            vol.Optional(
+                CONF_TEXT_TEMPERATURE,
+                default=options.get(CONF_TEXT_TEMPERATURE, data.get(CONF_TEXT_TEMPERATURE, DEFAULT_TEMPERATURE)),
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+            vol.Optional(
+                CONF_TEXT_TOP_P,
+                default=options.get(CONF_TEXT_TOP_P, data.get(CONF_TEXT_TOP_P, DEFAULT_TOP_P)),
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=1.0)),
+            vol.Optional(
+                CONF_TEXT_TOP_K,
+                default=options.get(CONF_TEXT_TOP_K, data.get(CONF_TEXT_TOP_K, DEFAULT_TOP_K)),
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
+            vol.Optional(
+                CONF_TEXT_REPEAT_PENALTY,
+                default=options.get(CONF_TEXT_REPEAT_PENALTY, data.get(CONF_TEXT_REPEAT_PENALTY, DEFAULT_REPEAT_PENALTY)),
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+            vol.Optional(
+                CONF_TEXT_SEED,
+                default=options.get(CONF_TEXT_SEED, data.get(CONF_TEXT_SEED, DEFAULT_SEED)),
+            ): vol.Coerce(int),
+            vol.Optional(
+                CONF_TEXT_NUM_PREDICT,
+                default=options.get(CONF_TEXT_NUM_PREDICT, data.get(CONF_TEXT_NUM_PREDICT, DEFAULT_NUM_PREDICT)),
+            ): vol.All(vol.Coerce(int), vol.Range(min=-1, max=4096)),
         })
         return self.async_show_form(
             step_id="text_model_options",

@@ -43,4 +43,112 @@ analyze_image:
       required: false
       default: "You are an AI that describes people outside of my home. Give me a short brief based on the following description: <description>{description}</description>. Do it in English, and only give me a short brief, nothing else."
       selector:
-        text: 
+        text:
+    vision_temperature:
+      name: "Creativity Level (Vision)"
+      description: "Controls randomness and creativity in vision model responses. Lower values (0.0-0.5) make the model more focused and deterministic. Higher values (0.8-2.0) increase creativity and variation. Default: 0.8"
+      required: false
+      selector:
+        number:
+          min: 0.0
+          max: 2.0
+          step: 0.1
+    vision_top_p:
+      name: "Response Variety (Vision)"
+      description: "Controls diversity of responses using nucleus sampling. Lower values (0.1-0.5) produce more focused outputs. Higher values (0.8-1.0) allow more variety. Default: 0.9"
+      required: false
+      selector:
+        number:
+          min: 0.0
+          max: 1.0
+          step: 0.05
+    vision_top_k:
+      name: "Token Selection Limit (Vision)"
+      description: "Limits the number of tokens considered at each step. Lower values (10-20) make responses more focused. Higher values (40-100) allow more variety. Default: 40"
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 100
+          step: 1
+    vision_repeat_penalty:
+      name: "Repetition Control (Vision)"
+      description: "Penalizes repetitive text. Values below 1.0 encourage repetition. Values above 1.0 (1.1-2.0) discourage it. Default: 1.1"
+      required: false
+      selector:
+        number:
+          min: 0.0
+          max: 2.0
+          step: 0.1
+    vision_seed:
+      name: "Random Seed (Vision)"
+      description: "Set a specific seed for reproducible results. Use 0 for random results each time, or any other number for consistent outputs. Default: 0 (random)"
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          step: 1
+    vision_num_predict:
+      name: "Max Response Length (Vision)"
+      description: "Maximum number of tokens to generate. Use -1 for unlimited, or set a specific limit (e.g., 128, 256, 512). Higher values allow longer responses. Default: 128"
+      required: false
+      selector:
+        number:
+          min: -1
+          max: 4096
+          step: 1
+    text_temperature:
+      name: "Creativity Level (Text)"
+      description: "Controls randomness and creativity in text model responses. Lower values (0.0-0.5) make the model more focused and deterministic. Higher values (0.8-2.0) increase creativity and variation. Default: 0.8"
+      required: false
+      selector:
+        number:
+          min: 0.0
+          max: 2.0
+          step: 0.1
+    text_top_p:
+      name: "Response Variety (Text)"
+      description: "Controls diversity of responses using nucleus sampling. Lower values (0.1-0.5) produce more focused outputs. Higher values (0.8-1.0) allow more variety. Default: 0.9"
+      required: false
+      selector:
+        number:
+          min: 0.0
+          max: 1.0
+          step: 0.05
+    text_top_k:
+      name: "Token Selection Limit (Text)"
+      description: "Limits the number of tokens considered at each step. Lower values (10-20) make responses more focused. Higher values (40-100) allow more variety. Default: 40"
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 100
+          step: 1
+    text_repeat_penalty:
+      name: "Repetition Control (Text)"
+      description: "Penalizes repetitive text. Values below 1.0 encourage repetition. Values above 1.0 (1.1-2.0) discourage it. Default: 1.1"
+      required: false
+      selector:
+        number:
+          min: 0.0
+          max: 2.0
+          step: 0.1
+    text_seed:
+      name: "Random Seed (Text)"
+      description: "Set a specific seed for reproducible results. Use 0 for random results each time, or any other number for consistent outputs. Default: 0 (random)"
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          step: 1
+    text_num_predict:
+      name: "Max Response Length (Text)"
+      description: "Maximum number of tokens to generate. Use -1 for unlimited, or set a specific limit (e.g., 128, 256, 512). Higher values allow longer responses. Default: 128"
+      required: false
+      selector:
+        number:
+          min: -1
+          max: 4096
+          step: 1

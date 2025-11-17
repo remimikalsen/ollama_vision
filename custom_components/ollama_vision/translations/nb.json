@@ -10,7 +10,13 @@
             "port": "Vision-port",
             "model": "Vision-modell",
             "vision_keepalive": "Vision-modell keep-alive (-1 for alltid på)",
-            "text_model_enabled": "Aktiver tekstmodell"
+            "text_model_enabled": "Aktiver tekstmodell",
+            "vision_temperature": "Kreativitetsnivå (0.0-2.0)",
+            "vision_top_p": "Responsvariasjon (0.0-1.0)",
+            "vision_top_k": "Token-seleksjonsgrense (1-100)",
+            "vision_repeat_penalty": "Gjentakelseskontroll (0.0-2.0)",
+            "vision_seed": "Tilfeldig frø (0=tilfeldig)",
+            "vision_num_predict": "Maks responslengde (-1=ubegrenset)"
           }
         },
         "text_model": {
@@ -20,7 +26,13 @@
             "text_host": "Tekstmodell-vert",
             "text_port": "Tekstmodell-port",
             "text_model": "Tekstmodell",
-            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)"
+            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)",
+            "text_temperature": "Kreativitetsnivå (0.0-2.0)",
+            "text_top_p": "Responsvariasjon (0.0-1.0)",
+            "text_top_k": "Token-seleksjonsgrense (1-100)",
+            "text_repeat_penalty": "Gjentakelseskontroll (0.0-2.0)",
+            "text_seed": "Tilfeldig frø (0=tilfeldig)",
+            "text_num_predict": "Maks responslengde (-1=ubegrenset)"
           }
         }
       },
@@ -43,7 +55,13 @@
             "port": "Vision-port",
             "model": "Vision-modell",
             "vision_keepalive": "Vision-modell Keep-Alive (-1 for alltid på)",
-            "text_model_enabled": "Aktiver Tekstmodell"
+            "text_model_enabled": "Aktiver Tekstmodell",
+            "vision_temperature": "Kreativitetsnivå (0.0-2.0)",
+            "vision_top_p": "Responsvariasjon (0.0-1.0)",
+            "vision_top_k": "Token-seleksjonsgrense (1-100)",
+            "vision_repeat_penalty": "Gjentakelseskontroll (0.0-2.0)",
+            "vision_seed": "Tilfeldig frø (0=tilfeldig)",
+            "vision_num_predict": "Maks responslengde (-1=ubegrenset)"
             }
         },
         "text_model_options": {
@@ -53,7 +71,13 @@
             "text_host": "Tekstmodell-vert",
             "text_port": "Tekstmodell-port",
             "text_model": "Tekstmodell",
-            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)"
+            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)",
+            "text_temperature": "Kreativitetsnivå (0.0-2.0)",
+            "text_top_p": "Responsvariasjon (0.0-1.0)",
+            "text_top_k": "Token-seleksjonsgrense (1-100)",
+            "text_repeat_penalty": "Gjentakelseskontroll (0.0-2.0)",
+            "text_seed": "Tilfeldig frø (0=tilfeldig)",
+            "text_num_predict": "Maks responslengde (-1=ubegrenset)"
             }
         }
         }
@@ -86,6 +110,54 @@
           "text_prompt": {
             "name": "Tekst-prompt",
             "description": "Prompt-mal for tekstmodellen. Se standardmalen for å lære hvordan du refererer til vision-modellens utdata."
+          },
+          "vision_temperature": {
+            "name": "Kreativitetsnivå (Vision)",
+            "description": "Kontrollerer tilfeldighet og kreativitet i vision-modellens responser (0.0-2.0). Lavere verdier gjør modellen mer fokusert, høyere verdier øker kreativiteten."
+          },
+          "vision_top_p": {
+            "name": "Responsvariasjon (Vision)",
+            "description": "Kontrollerer mangfold i responser (0.0-1.0). Lavere verdier gir mer fokuserte utdata, høyere verdier tillater mer variasjon."
+          },
+          "vision_top_k": {
+            "name": "Token-seleksjonsgrense (Vision)",
+            "description": "Begrenser antall tokens som vurderes ved hvert trinn (1-100). Lavere verdier gjør responsene mer fokuserte."
+          },
+          "vision_repeat_penalty": {
+            "name": "Gjentakelseskontroll (Vision)",
+            "description": "Straffer repetitiv tekst (0.0-2.0). Verdier over 1.0 motvirker repetisjon."
+          },
+          "vision_seed": {
+            "name": "Tilfeldig frø (Vision)",
+            "description": "Sett et spesifikt frø for reproduserbare resultater. Bruk 0 for tilfeldige resultater."
+          },
+          "vision_num_predict": {
+            "name": "Maks responslengde (Vision)",
+            "description": "Maksimalt antall tokens som skal genereres. Bruk -1 for ubegrenset."
+          },
+          "text_temperature": {
+            "name": "Kreativitetsnivå (Tekst)",
+            "description": "Kontrollerer tilfeldighet og kreativitet i tekstmodellens responser (0.0-2.0). Lavere verdier gjør modellen mer fokusert, høyere verdier øker kreativiteten."
+          },
+          "text_top_p": {
+            "name": "Responsvariasjon (Tekst)",
+            "description": "Kontrollerer mangfold i responser (0.0-1.0). Lavere verdier gir mer fokuserte utdata, høyere verdier tillater mer variasjon."
+          },
+          "text_top_k": {
+            "name": "Token-seleksjonsgrense (Tekst)",
+            "description": "Begrenser antall tokens som vurderes ved hvert trinn (1-100). Lavere verdier gjør responsene mer fokuserte."
+          },
+          "text_repeat_penalty": {
+            "name": "Gjentakelseskontroll (Tekst)",
+            "description": "Straffer repetitiv tekst (0.0-2.0). Verdier over 1.0 motvirker repetisjon."
+          },
+          "text_seed": {
+            "name": "Tilfeldig frø (Tekst)",
+            "description": "Sett et spesifikt frø for reproduserbare resultater. Bruk 0 for tilfeldige resultater."
+          },
+          "text_num_predict": {
+            "name": "Maks responslengde (Tekst)",
+            "description": "Maksimalt antall tokens som skal genereres. Bruk -1 for ubegrenset."
           }
         }
       }

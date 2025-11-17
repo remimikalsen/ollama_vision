@@ -38,6 +38,40 @@ from .const import (
     __version__,
     INTEGRATION_NAME,
     MANUFACTURER,
+    # Vision model parameters
+    CONF_VISION_TEMPERATURE,
+    CONF_VISION_TOP_P,
+    CONF_VISION_TOP_K,
+    CONF_VISION_REPEAT_PENALTY,
+    CONF_VISION_SEED,
+    CONF_VISION_NUM_PREDICT,
+    # Text model parameters
+    CONF_TEXT_TEMPERATURE,
+    CONF_TEXT_TOP_P,
+    CONF_TEXT_TOP_K,
+    CONF_TEXT_REPEAT_PENALTY,
+    CONF_TEXT_SEED,
+    CONF_TEXT_NUM_PREDICT,
+    # Defaults
+    DEFAULT_TEMPERATURE,
+    DEFAULT_TOP_P,
+    DEFAULT_TOP_K,
+    DEFAULT_REPEAT_PENALTY,
+    DEFAULT_SEED,
+    DEFAULT_NUM_PREDICT,
+    # Service attributes
+    ATTR_VISION_TEMPERATURE,
+    ATTR_VISION_TOP_P,
+    ATTR_VISION_TOP_K,
+    ATTR_VISION_REPEAT_PENALTY,
+    ATTR_VISION_SEED,
+    ATTR_VISION_NUM_PREDICT,
+    ATTR_TEXT_TEMPERATURE,
+    ATTR_TEXT_TOP_P,
+    ATTR_TEXT_TOP_K,
+    ATTR_TEXT_REPEAT_PENALTY,
+    ATTR_TEXT_SEED,
+    ATTR_TEXT_NUM_PREDICT,
 )
 from .api import OllamaClient
 
@@ -54,6 +88,20 @@ ANALYZE_IMAGE_SCHEMA = vol.Schema(
         vol.Optional(ATTR_DEVICE_ID): cv.string,
         vol.Optional(ATTR_USE_TEXT_MODEL, default=False): cv.boolean,
         vol.Optional(ATTR_TEXT_PROMPT, default=DEFAULT_TEXT_PROMPT): cv.string,
+        # Vision model parameter overrides
+        vol.Optional(ATTR_VISION_TEMPERATURE): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+        vol.Optional(ATTR_VISION_TOP_P): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=1.0)),
+        vol.Optional(ATTR_VISION_TOP_K): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
+        vol.Optional(ATTR_VISION_REPEAT_PENALTY): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+        vol.Optional(ATTR_VISION_SEED): vol.Coerce(int),
+        vol.Optional(ATTR_VISION_NUM_PREDICT): vol.All(vol.Coerce(int), vol.Range(min=-1, max=4096)),
+        # Text model parameter overrides
+        vol.Optional(ATTR_TEXT_TEMPERATURE): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+        vol.Optional(ATTR_TEXT_TOP_P): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=1.0)),
+        vol.Optional(ATTR_TEXT_TOP_K): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
+        vol.Optional(ATTR_TEXT_REPEAT_PENALTY): vol.All(vol.Coerce(float), vol.Range(min=0.0, max=2.0)),
+        vol.Optional(ATTR_TEXT_SEED): vol.Coerce(int),
+        vol.Optional(ATTR_TEXT_NUM_PREDICT): vol.All(vol.Coerce(int), vol.Range(min=-1, max=4096)),
     }
 )
 
@@ -77,7 +125,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     model = entry.data.get(CONF_MODEL) or entry.options.get(CONF_MODEL)
     name = entry.data.get(CONF_NAME)
     vision_keepalive = entry.data.get(CONF_VISION_KEEPALIVE) or entry.options.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
-    
+
+    # Get vision model parameters
+    vision_temperature = entry.options.get(CONF_VISION_TEMPERATURE, entry.data.get(CONF_VISION_TEMPERATURE, DEFAULT_TEMPERATURE))
+    vision_top_p = entry.options.get(CONF_VISION_TOP_P, entry.data.get(CONF_VISION_TOP_P, DEFAULT_TOP_P))
+    vision_top_k = entry.options.get(CONF_VISION_TOP_K, entry.data.get(CONF_VISION_TOP_K, DEFAULT_TOP_K))
+    vision_repeat_penalty = entry.options.get(CONF_VISION_REPEAT_PENALTY, entry.data.get(CONF_VISION_REPEAT_PENALTY, DEFAULT_REPEAT_PENALTY))
+    vision_seed = entry.options.get(CONF_VISION_SEED, entry.data.get(CONF_VISION_SEED, DEFAULT_SEED))
+    vision_num_predict = entry.options.get(CONF_VISION_NUM_PREDICT, entry.data.get(CONF_VISION_NUM_PREDICT, DEFAULT_NUM_PREDICT))
+
     # Get text model settings
     text_model_enabled = entry.options.get(
         CONF_TEXT_MODEL_ENABLED, 
@@ -87,20 +143,39 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     text_port = None
     text_model = None
     text_keepalive = DEFAULT_KEEPALIVE
-    
+    text_temperature = DEFAULT_TEMPERATURE
+    text_top_p = DEFAULT_TOP_P
+    text_top_k = DEFAULT_TOP_K
+    text_repeat_penalty = DEFAULT_REPEAT_PENALTY
+    text_seed = DEFAULT_SEED
+    text_num_predict = DEFAULT_NUM_PREDICT
+
     if text_model_enabled:
         text_host = entry.data.get(CONF_TEXT_HOST) or entry.options.get(CONF_TEXT_HOST)
         text_port = entry.data.get(CONF_TEXT_PORT) or entry.options.get(CONF_TEXT_PORT)
-        
+
         # Migrate old text config: combine host:port if port exists separately
         if text_port and text_host and ':' not in text_host and not text_host.startswith('http'):
             text_host = f"{text_host}:{text_port}"
             text_port = None
-        
+
         text_model = entry.data.get(CONF_TEXT_MODEL) or entry.options.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
         text_keepalive = entry.data.get(CONF_TEXT_KEEPALIVE) or entry.options.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
-    
-    client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, text_keepalive)
+
+        # Get text model parameters
+        text_temperature = entry.options.get(CONF_TEXT_TEMPERATURE, entry.data.get(CONF_TEXT_TEMPERATURE, DEFAULT_TEMPERATURE))
+        text_top_p = entry.options.get(CONF_TEXT_TOP_P, entry.data.get(CONF_TEXT_TOP_P, DEFAULT_TOP_P))
+        text_top_k = entry.options.get(CONF_TEXT_TOP_K, entry.data.get(CONF_TEXT_TOP_K, DEFAULT_TOP_K))
+        text_repeat_penalty = entry.options.get(CONF_TEXT_REPEAT_PENALTY, entry.data.get(CONF_TEXT_REPEAT_PENALTY, DEFAULT_REPEAT_PENALTY))
+        text_seed = entry.options.get(CONF_TEXT_SEED, entry.data.get(CONF_TEXT_SEED, DEFAULT_SEED))
+        text_num_predict = entry.options.get(CONF_TEXT_NUM_PREDICT, entry.data.get(CONF_TEXT_NUM_PREDICT, DEFAULT_NUM_PREDICT))
+
+    client = OllamaClient(
+        hass, host, port, model, text_host, text_port, text_model,
+        vision_keepalive, text_keepalive,
+        vision_temperature, vision_top_p, vision_top_k, vision_repeat_penalty, vision_seed, vision_num_predict,
+        text_temperature, text_top_p, text_top_k, text_repeat_penalty, text_seed, text_num_predict
+    )
     
     # Store the client in hass.data
     hass.data[DOMAIN][entry.entry_id] = {
@@ -210,7 +285,90 @@ async def handle_analyze_image(hass, call):
         entry_id_to_use = valid_entry_ids[0]
     
     client_to_use = hass.data[DOMAIN][entry_id_to_use]["client"]
-    
+
+    # Check for parameter overrides in the service call
+    has_vision_overrides = any([
+        ATTR_VISION_TEMPERATURE in call.data,
+        ATTR_VISION_TOP_P in call.data,
+        ATTR_VISION_TOP_K in call.data,
+        ATTR_VISION_REPEAT_PENALTY in call.data,
+        ATTR_VISION_SEED in call.data,
+        ATTR_VISION_NUM_PREDICT in call.data,
+    ])
+    has_text_overrides = any([
+        ATTR_TEXT_TEMPERATURE in call.data,
+        ATTR_TEXT_TOP_P in call.data,
+        ATTR_TEXT_TOP_K in call.data,
+        ATTR_TEXT_REPEAT_PENALTY in call.data,
+        ATTR_TEXT_SEED in call.data,
+        ATTR_TEXT_NUM_PREDICT in call.data,
+    ])
+
+    # If there are parameter overrides, create a new client with those parameters
+    if has_vision_overrides or has_text_overrides:
+        # Get the entry to access configuration
+        entry = None
+        for config_entry in hass.config_entries.async_entries(DOMAIN):
+            if config_entry.entry_id == entry_id_to_use:
+                entry = config_entry
+                break
+
+        if entry:
+            # Get base configuration from the entry
+            host = entry.data.get(CONF_HOST) or entry.options.get(CONF_HOST)
+            port = entry.data.get(CONF_PORT) or entry.options.get(CONF_PORT)
+            if port and host and ':' not in host and not host.startswith('http'):
+                host = f"{host}:{port}"
+                port = None
+            model = entry.data.get(CONF_MODEL) or entry.options.get(CONF_MODEL)
+            vision_keepalive = entry.data.get(CONF_VISION_KEEPALIVE) or entry.options.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
+
+            # Get vision model parameters (use overrides if provided, otherwise use config)
+            vision_temperature = call.data.get(ATTR_VISION_TEMPERATURE, entry.options.get(CONF_VISION_TEMPERATURE, entry.data.get(CONF_VISION_TEMPERATURE, DEFAULT_TEMPERATURE)))
+            vision_top_p = call.data.get(ATTR_VISION_TOP_P, entry.options.get(CONF_VISION_TOP_P, entry.data.get(CONF_VISION_TOP_P, DEFAULT_TOP_P)))
+            vision_top_k = call.data.get(ATTR_VISION_TOP_K, entry.options.get(CONF_VISION_TOP_K, entry.data.get(CONF_VISION_TOP_K, DEFAULT_TOP_K)))
+            vision_repeat_penalty = call.data.get(ATTR_VISION_REPEAT_PENALTY, entry.options.get(CONF_VISION_REPEAT_PENALTY, entry.data.get(CONF_VISION_REPEAT_PENALTY, DEFAULT_REPEAT_PENALTY)))
+            vision_seed = call.data.get(ATTR_VISION_SEED, entry.options.get(CONF_VISION_SEED, entry.data.get(CONF_VISION_SEED, DEFAULT_SEED)))
+            vision_num_predict = call.data.get(ATTR_VISION_NUM_PREDICT, entry.options.get(CONF_VISION_NUM_PREDICT, entry.data.get(CONF_VISION_NUM_PREDICT, DEFAULT_NUM_PREDICT)))
+
+            # Get text model settings
+            text_model_enabled = entry.options.get(CONF_TEXT_MODEL_ENABLED, entry.data.get(CONF_TEXT_MODEL_ENABLED, False))
+            text_host = None
+            text_port = None
+            text_model = None
+            text_keepalive = DEFAULT_KEEPALIVE
+            text_temperature = DEFAULT_TEMPERATURE
+            text_top_p = DEFAULT_TOP_P
+            text_top_k = DEFAULT_TOP_K
+            text_repeat_penalty = DEFAULT_REPEAT_PENALTY
+            text_seed = DEFAULT_SEED
+            text_num_predict = DEFAULT_NUM_PREDICT
+
+            if text_model_enabled:
+                text_host = entry.data.get(CONF_TEXT_HOST) or entry.options.get(CONF_TEXT_HOST)
+                text_port = entry.data.get(CONF_TEXT_PORT) or entry.options.get(CONF_TEXT_PORT)
+                if text_port and text_host and ':' not in text_host and not text_host.startswith('http'):
+                    text_host = f"{text_host}:{text_port}"
+                    text_port = None
+                text_model = entry.data.get(CONF_TEXT_MODEL) or entry.options.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
+                text_keepalive = entry.data.get(CONF_TEXT_KEEPALIVE) or entry.options.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
+
+                # Get text model parameters (use overrides if provided, otherwise use config)
+                text_temperature = call.data.get(ATTR_TEXT_TEMPERATURE, entry.options.get(CONF_TEXT_TEMPERATURE, entry.data.get(CONF_TEXT_TEMPERATURE, DEFAULT_TEMPERATURE)))
+                text_top_p = call.data.get(ATTR_TEXT_TOP_P, entry.options.get(CONF_TEXT_TOP_P, entry.data.get(CONF_TEXT_TOP_P, DEFAULT_TOP_P)))
+                text_top_k = call.data.get(ATTR_TEXT_TOP_K, entry.options.get(CONF_TEXT_TOP_K, entry.data.get(CONF_TEXT_TOP_K, DEFAULT_TOP_K)))
+                text_repeat_penalty = call.data.get(ATTR_TEXT_REPEAT_PENALTY, entry.options.get(CONF_TEXT_REPEAT_PENALTY, entry.data.get(CONF_TEXT_REPEAT_PENALTY, DEFAULT_REPEAT_PENALTY)))
+                text_seed = call.data.get(ATTR_TEXT_SEED, entry.options.get(CONF_TEXT_SEED, entry.data.get(CONF_TEXT_SEED, DEFAULT_SEED)))
+                text_num_predict = call.data.get(ATTR_TEXT_NUM_PREDICT, entry.options.get(CONF_TEXT_NUM_PREDICT, entry.data.get(CONF_TEXT_NUM_PREDICT, DEFAULT_NUM_PREDICT)))
+
+            # Create a new client with the overridden parameters
+            client_to_use = OllamaClient(
+                hass, host, port, model, text_host, text_port, text_model,
+                vision_keepalive, text_keepalive,
+                vision_temperature, vision_top_p, vision_top_k, vision_repeat_penalty, vision_seed, vision_num_predict,
+                text_temperature, text_top_p, text_top_k, text_repeat_penalty, text_seed, text_num_predict
+            )
+
     # Analyze the image using the selected client
     vision_description = await client_to_use.analyze_image(image_url, vision_prompt)
     
