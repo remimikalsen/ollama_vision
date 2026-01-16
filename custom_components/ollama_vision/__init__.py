@@ -240,8 +240,8 @@ async def handle_analyze_image(hass, call):
 
     #validate for strings
     for url in image_urls:
-    if not isinstance(url, str):
-        raise ValueError("image_url entries must be strings")
+        if not isinstance(url, str):
+            raise ValueError("image_url entries must be strings")
 
     # Normalize each path
     normalized_urls = []
