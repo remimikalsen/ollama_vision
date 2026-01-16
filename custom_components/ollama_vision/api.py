@@ -98,7 +98,7 @@ class OllamaClient:
         self.hass = hass
         self.model = model
         self.vision_keepalive = vision_keepalive
-        self.vision_contexsize = vision_contexsize
+        self.vision_contextsize = vision_contextsize
         
         # Parse vision host/URL
         vision_protocol, vision_host, vision_port, vision_path = _parse_url_or_host_port(host, port)
@@ -251,7 +251,7 @@ class OllamaClient:
                 "stream": True,
                 "keep_alive": self.vision_keepalive,
                 "options":
-                    {"num_ctx": self.vision_contexsize}
+                    {"num_ctx": self.vision_contextsize}
             }
 
             _LOGGER.debug("Vision model: %s", self.model)
