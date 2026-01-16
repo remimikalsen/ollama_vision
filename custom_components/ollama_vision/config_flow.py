@@ -23,7 +23,10 @@ from .const import (
     DEFAULT_TEXT_MODEL,
     CONF_VISION_KEEPALIVE,
     DEFAULT_KEEPALIVE,
+    CONF_VISION_CONTEXTSIZE,
+    DEFAULT_CONTEXTSIZE,
     CONF_TEXT_KEEPALIVE,
+    CONF_TEXT_CONTEXTSIZE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -161,6 +164,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_HOST): str,
                 vol.Required(CONF_MODEL, default=DEFAULT_MODEL): str,
                 vol.Required(CONF_VISION_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
+                vol.Required(CONF_VISION_CONTEXTSIZE, default=DEFAULT_CONTEXTSIZE): int,
                 vol.Optional(CONF_TEXT_MODEL_ENABLED, default=False): bool,
             }),
             errors=errors,
@@ -199,6 +203,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_TEXT_HOST): str,
                 vol.Required(CONF_TEXT_MODEL, default=DEFAULT_TEXT_MODEL): str,
                 vol.Required(CONF_TEXT_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
+                vol.Required(CONF_TEXT_CONTEXTSIZE, default=DEFAULT_CONTEXTSIZE): int,
             }),
             errors=errors,
         )
@@ -251,6 +256,10 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 CONF_VISION_KEEPALIVE,
                 default=options.get(CONF_VISION_KEEPALIVE, data.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)),
             ): int,
+            vol.Required(
+                CONF_VISION_CONTEXTSIZE,
+                default=options.get(CONF_VISION_CONTEXTSIZE, data.get(CONF_VISION_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)),
+            ): int,
             vol.Optional(
                 CONF_TEXT_MODEL_ENABLED,
                 default=options.get(CONF_TEXT_MODEL_ENABLED, data.get(CONF_TEXT_MODEL_ENABLED, False)),
@@ -290,6 +299,10 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
             vol.Required(
                 CONF_TEXT_KEEPALIVE,
                 default=options.get(CONF_TEXT_KEEPALIVE, data.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)),
+            ): int,
+            vol.Required(
+                CONF_TEXT_CONTEXTSIZE,
+                default=options.get(CONF_TEXT_CONTEXTSIZE, data.get(CONF_TEXT_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)),
             ): int,
         })
         return self.async_show_form(

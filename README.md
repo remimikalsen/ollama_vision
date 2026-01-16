@@ -20,6 +20,7 @@ DEFAULT_TEXT_MODEL = "antony66/gemma3-tools:27b"
 
 Added the option to define a context size to the model for calls.
 
+DEFAULT_CONTEXTSIZE = 8192
 
 ## Usage
 
