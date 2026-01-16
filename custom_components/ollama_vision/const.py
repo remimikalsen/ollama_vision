@@ -31,7 +31,7 @@ CONF_TEXT_HOST = "text_host"
 CONF_TEXT_PORT = "text_port"
 CONF_TEXT_MODEL = "text_model"
 DEFAULT_TEXT_PORT = 11434
-DEFAULT_TEXT_MODEL = "llama3.1"
+DEFAULT_TEXT_MODEL = "antony66/gemma3-tools:27b"
 CONF_TEXT_KEEPALIVE = "text_keepalive"
 DEFAULT_TEXT_PROMPT = "You are an AI that describes people outside of my home. Give me a short brief based on the following description: <description>{description}</description>. Do it in English, and only give me a short brief, nothing else."
 
