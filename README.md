@@ -18,6 +18,9 @@ DEFAULT_MODEL = "antony66/gemma3-tools:27b"
 
 DEFAULT_TEXT_MODEL = "antony66/gemma3-tools:27b"
 
+Added the option to define a context size to the model for calls.
+
+
 ## Usage
 
 You can queue images for analysis via the `ollama_vision.analyze_image` service. When called, it generates or updates a dynamic sensor holding the description of the analyzed image. 
