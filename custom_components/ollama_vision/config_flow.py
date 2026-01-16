@@ -215,7 +215,7 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry):
         """Initialize options flow."""
-        self.config_entry = config_entry
+        self._config_entry = config_entry
         # This will hold the vision configuration options from the first step
         self.vision_options = {}
 
@@ -228,8 +228,8 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_text_model_options()
             return self.async_create_entry(title="", data=user_input)
 
-        options = self.config_entry.options
-        data = self.config_entry.data
+        options = self._config_entry.options
+        data = self._config_entry.data
         
         # Migrate old config: combine host:port if port exists separately
         existing_host = options.get(CONF_HOST, data.get(CONF_HOST, ""))
@@ -268,8 +268,8 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
             combined_options = {**self.vision_options, **user_input}
             return self.async_create_entry(title="", data=combined_options)
 
-        options = self.config_entry.options
-        data = self.config_entry.data
+        options = self._config_entry.options
+        data = self._config_entry.data
         
         # Migrate old config: combine host:port if port exists separately
         existing_text_host = options.get(CONF_TEXT_HOST, data.get(CONF_TEXT_HOST, ""))
