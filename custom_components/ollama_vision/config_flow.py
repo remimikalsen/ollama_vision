@@ -207,15 +207,15 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        return OllamaVisionOptionsFlow(config_entry)
+        return OllamaVisionOptionsFlow()
 
 
 class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
     """Handle an options flow for Ollama Vision using multiple steps."""
 
-    def __init__(self, config_entry):
+    def __init__(self):
         """Initialize options flow."""
-        self.config_entry = config_entry
+        super().__init__()
         # This will hold the vision configuration options from the first step
         self.vision_options = {}
 
