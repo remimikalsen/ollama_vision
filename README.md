@@ -1,8 +1,8 @@
-![Build Status](https://img.shields.io/github/actions/workflow/status/remimikalsen/ollama_vision/publish.yaml)
-![HACS Test](https://img.shields.io/github/actions/workflow/status/remimikalsen/ollama_vision/hacs.yaml?label=HACS)
-![Hassfest Test](https://img.shields.io/github/actions/workflow/status/remimikalsen/ollama_vision/hassfest.yaml?label=Hassfest)
-![License](https://img.shields.io/github/license/remimikalsen/ollama_vision)
-
+![Build Status](https://img.shields.io/github/actions/workflow/status/tjnco/ollama_vision2/publish.yaml)
+![HACS Test](https://img.shields.io/github/actions/workflow/status/tjnco/ollama_vision2/hacs.yaml?label=HACS)
+![Hassfest Test](https://img.shields.io/github/actions/workflow/status/tjnco/ollama_vision2/hassfest.yaml?label=Hassfest)
+![License](https://img.shields.io/github/license/tjnco/ollama_vision2)
+![Version](https://img.shields.io/github/tag/tjnco/ollama_vision2)
 
 # Ollama Vision ~2
 
