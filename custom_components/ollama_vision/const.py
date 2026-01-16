@@ -8,6 +8,7 @@ CONF_HOST = "host"
 CONF_PORT = "port"
 CONF_MODEL = "model"
 DEFAULT_KEEPALIVE = -1
+DEFAULT_CONTEXTSIZE = 8192
 
 # Default values
 DEFAULT_PORT = 11434
