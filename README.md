@@ -28,8 +28,8 @@ You can queue images for analysis via the `ollama_vision.analyze_image` service.
 
 Note! The sensors will appear as **unavailable** after rebooting Home Assistant or reloading the integration. This is due to the fact that these sensors are dynamically created. You can create thousands of sensors if you wish, and I don't think persisting them is a good idea, because it would also require a bulletproof way of cleaning them up when needed.
 
-### Frigate example
-The following automation describes a person detected by Frigate:
+### Local Camera Snapshot example
+The following automation describes comparing a reference image with a new snapshot for comparison:
 
 ```
 action: ollama_vision2.analyze_image

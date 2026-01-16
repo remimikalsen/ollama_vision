@@ -295,7 +295,7 @@ class OllamaClient:
                 "model": self.text_model,
                 "prompt": prompt,
                 "stream": True,
-                "keep_alive": self.text_keepalive
+                "keep_alive": self.text_keepalive,
                 "options":
                     {"num_ctx": self.text_contextsize}
             }
