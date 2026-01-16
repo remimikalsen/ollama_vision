@@ -1,4 +1,4 @@
-"""The Ollama Vision 2 integration."""
+"""The Ollama Vision integration."""
 import logging
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
@@ -33,9 +33,6 @@ from .const import (
     CONF_TEXT_KEEPALIVE,
     DEFAULT_KEEPALIVE,
     CONF_VISION_KEEPALIVE,
-    CONF_TEXT_CONTEXTSIZE,
-    DEFAULT_CONTEXTSIZE,
-    CONF_VISION_CONTEXTSIZE,
     DEFAULT_PROMPT,
     DEFAULT_TEXT_PROMPT,
     __version__,
@@ -51,7 +48,7 @@ CONFIG_SCHEMA = config_entry_only_config_schema(DOMAIN)
 # Service schema
 ANALYZE_IMAGE_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_IMAGE_URL):  vol.Any(cv.string, [cv.string]),
+        vol.Required(ATTR_IMAGE_URL): cv.string,
         vol.Optional(ATTR_PROMPT, default=DEFAULT_PROMPT): cv.string,
         vol.Required(ATTR_IMAGE_NAME): cv.string,
         vol.Optional(ATTR_DEVICE_ID): cv.string,
@@ -61,14 +58,14 @@ ANALYZE_IMAGE_SCHEMA = vol.Schema(
 )
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the Ollama Vision 2 component."""
+    """Set up the Ollama Vision component."""
     hass.data[DOMAIN] = {}
     hass.data[DOMAIN]["pending_sensors"] = {}
     hass.data[DOMAIN]["created_sensors"] = {}
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Ollama Vision 2 from a config entry."""
+    """Set up Ollama Vision from a config entry."""
     host = entry.data.get(CONF_HOST) or entry.options.get(CONF_HOST)
     port = entry.data.get(CONF_PORT) or entry.options.get(CONF_PORT)
     
@@ -80,7 +77,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     model = entry.data.get(CONF_MODEL) or entry.options.get(CONF_MODEL)
     name = entry.data.get(CONF_NAME)
     vision_keepalive = entry.data.get(CONF_VISION_KEEPALIVE) or entry.options.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
-    vision_contextsize = entry.data.get(CONF_VISION_CONTEXTSIZE) or entry.options.get(CONF_VISION_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)
     
     # Get text model settings
     text_model_enabled = entry.options.get(
@@ -91,7 +87,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     text_port = None
     text_model = None
     text_keepalive = DEFAULT_KEEPALIVE
-    text_contextsize = DEFAULT_CONTEXTSIZE
     
     if text_model_enabled:
         text_host = entry.data.get(CONF_TEXT_HOST) or entry.options.get(CONF_TEXT_HOST)
@@ -104,9 +99,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         
         text_model = entry.data.get(CONF_TEXT_MODEL) or entry.options.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
         text_keepalive = entry.data.get(CONF_TEXT_KEEPALIVE) or entry.options.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
-        text_contextsize = entry.data.get(CONF_TEXT_CONTEXTSIZE) or entry.options.get(CONF_TEXT_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)
     
-    client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, vision_contextsize, text_keepalive, text_contextsize) ##follow vision_keepalive for vision_contextsize
+    client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, text_keepalive)
     
     # Store the client in hass.data
     hass.data[DOMAIN][entry.entry_id] = {
@@ -119,8 +113,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             CONF_TEXT_MODEL_ENABLED: text_model_enabled,
             CONF_TEXT_HOST: text_host,  # host may contain hostname:port or full URL
             CONF_TEXT_MODEL: text_model,
-            CONF_TEXT_KEEPALIVE: text_keepalive,
-            CONF_TEXT_CONTEXTSIZE: text_contextsize
+            CONF_TEXT_KEEPALIVE: text_keepalive
         },
         "device_info": {
             "identifiers": {(DOMAIN, entry.entry_id)},
@@ -206,11 +199,11 @@ async def handle_analyze_image(hass, call):
         ]
         if not valid_entry_ids:
             # Means there are no configured integrations at all
-            raise HomeAssistantError("No configured Ollama Vision 2 entries found. "
+            raise HomeAssistantError("No configured Ollama Vision entries found. "
                                     "Please add at least one config entry or specify device_id.")
         if len(valid_entry_ids) > 1 and not device_id:
             _LOGGER.warning(
-                "Multiple Ollama Vision 2 instances found but no device_id specified. "
+                "Multiple Ollama Vision instances found but no device_id specified. "
                 "Using first available. Specify device_id parameter to target a specific instance."
             )
         # Pick the first valid entry
@@ -235,29 +228,11 @@ async def handle_analyze_image(hass, call):
         text_prompt_formatted = text_prompt.format(description=vision_description)
         final_description = await client_to_use.elaborate_text(vision_description, text_prompt_formatted)
     
-    
     # Replace 'www/' with 'local/' if applicable
     # If the image is within /config/www, it will actually 
     # be displayed in companion app notifications
-    # Normalize image_url to a list
-    if isinstance(image_url, str):
-        image_urls = [image_url]
-    else:
-        image_urls = list(image_url)
-
-    #validate for strings
-    for url in image_urls:
-        if not isinstance(url, str):
-            raise ValueError("image_url entries must be strings")
-
-    # Normalize each path
-    normalized_urls = []
-    for url in image_urls:
-        if url.startswith("www/"):
-            url = url.replace("www/", "local/", 1)
-        normalized_urls.append(url)
-
-    image_url = normalized_urls
+    if image_url.startswith("www/"):
+        image_url = image_url.replace("www/", "local/", 1)
     
     # Store data so the sensor can display it
     pending_sensors = hass.data[DOMAIN].setdefault("pending_sensors", {}).setdefault(entry_id_to_use, {})

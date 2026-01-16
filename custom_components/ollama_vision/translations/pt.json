@@ -2,15 +2,14 @@
     "config": {
       "step": {
         "user": {
-          "title": "Conectar ao Ollama Vision 2",
-          "description": "Insira os detalhes para conectar ao teu modelo Ollama Vision 2.",
+          "title": "Conectar ao Ollama Vision",
+          "description": "Insira os detalhes para conectar ao teu modelo Ollama Vision.",
           "data": {
             "name": "Nome",
             "host": "Host do Vision",
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
-            "vision_contextsize": "Keep-Alive do Context Size (8192)",
             "text_model_enabled": "Ativar Modelo de Texto"
           }
         },
@@ -31,20 +30,19 @@
         "required": "Este campo é obrigatório"
       },
       "abort": {
-        "already_configured": "Ollama Vision 2 já está configurado"
+        "already_configured": "Ollama Vision já está configurado"
       }
     },
     "options": {
       "step": {
         "init": {
-            "title": "Opções do Ollama Vision 2",
-            "description": "Ajuste as configurações da sua integração Ollama Vision 2.",
+            "title": "Opções do Ollama Vision",
+            "description": "Ajuste as configurações da sua integração Ollama Vision.",
             "data": {
             "host": "Host do Vision",
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
-            "vision_contextsize": "Keep-Alive do Context Size (8192)",
             "text_model_enabled": "Ativar Modelo de Texto"
             }
         },
@@ -79,7 +77,7 @@
           },
           "device_id": {
             "name": "Configuração",
-            "description": "Escolha o dispositivo Ollama Vision 2 para usar nesta análise. Um dispositivo representa um modelo vision e de texto específico."
+            "description": "Escolha o dispositivo Ollama Vision para usar nesta análise. Um dispositivo representa um modelo vision e de texto específico."
           },
           "use_text_model": {
             "name": "Usar Modelo de Texto",

@@ -2,15 +2,14 @@
     "config": {
       "step": {
         "user": {
-          "title": "Connect to Ollama Vision v2",
-          "description": "Enter the details to connect to your Ollama Vision v2 model.",
+          "title": "Connect to Ollama Vision",
+          "description": "Enter the details to connect to your Ollama Vision model.",
           "data": {
             "name": "Name",
             "host": "Vision Host",
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
-            "vision_contextsize": "Vision Model Context Size (8192 default)",
             "text_model_enabled": "Enable Text Model"
           }
         },
@@ -31,20 +30,19 @@
         "required": "This field is required"
       },
       "abort": {
-        "already_configured": "Ollama Vision 2 is already configured"
+        "already_configured": "Ollama Vision is already configured"
       }
     },
     "options": {
       "step": {
         "init": {
-            "title": "Ollama Vision 2 Options",
-            "description": "Adjust your Ollama Vision 2 integration settings.",
+            "title": "Ollama Vision Options",
+            "description": "Adjust your Ollama Vision integration settings.",
             "data": {
             "host": "Vision Host",
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
-            "vision_contextsize": "Vision Model Context Size (8192 default)",
             "text_model_enabled": "Enable Text Model"
             }
         },
@@ -71,7 +69,7 @@
           },
           "prompt": {
             "name": "Vision Prompt",
-            "description": "Prompt to send to Ollama Vision 2 model with the image."
+            "description": "Prompt to send to Ollama vision model with the image."
           },
           "image_name": {
             "name": "Image Name",
@@ -79,7 +77,7 @@
           },
           "device_id": {
             "name": "Configuration",
-            "description": "Pick the Ollama Vision 2 device to use for this analysis. A device represents a specific vision and text model."
+            "description": "Pick the Ollama Vision device to use for this analysis. A device represents a specific vision and text model."
           },
           "use_text_model": {
             "name": "Use Text Model",

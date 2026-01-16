@@ -1,4 +1,4 @@
-"""Config flow for Ollama Vision 2 integration."""
+"""Config flow for Ollama Vision integration."""
 import logging
 import aiohttp
 import voluptuous as vol
@@ -23,10 +23,7 @@ from .const import (
     DEFAULT_TEXT_MODEL,
     CONF_VISION_KEEPALIVE,
     DEFAULT_KEEPALIVE,
-    CONF_VISION_CONTEXTSIZE,
-    DEFAULT_CONTEXTSIZE,
     CONF_TEXT_KEEPALIVE,
-    CONF_TEXT_CONTEXTSIZE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -117,7 +114,7 @@ def _build_api_url(host, port=None, endpoint="version"):
 
 
 class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Ollama Vision 2."""
+    """Handle a config flow for Ollama Vision."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
@@ -131,7 +128,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # Test connection to Ollama Vision 2 server
+            # Test connection to Ollama vision server
             try:
                 session = aiohttp.ClientSession()
                 api_url = _build_api_url(user_input[CONF_HOST], None, "version")
@@ -164,7 +161,6 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_HOST): str,
                 vol.Required(CONF_MODEL, default=DEFAULT_MODEL): str,
                 vol.Required(CONF_VISION_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
-                vol.Required(CONF_VISION_CONTEXTSIZE, default=DEFAULT_CONTEXTSIZE): int,
                 vol.Optional(CONF_TEXT_MODEL_ENABLED, default=False): bool,
             }),
             errors=errors,
@@ -203,7 +199,6 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_TEXT_HOST): str,
                 vol.Required(CONF_TEXT_MODEL, default=DEFAULT_TEXT_MODEL): str,
                 vol.Required(CONF_TEXT_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
-                vol.Required(CONF_TEXT_CONTEXTSIZE, default=DEFAULT_CONTEXTSIZE): int,
             }),
             errors=errors,
         )
@@ -216,12 +211,11 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
-    """Handle an options flow for Ollama Vision 2 using multiple steps."""
+    """Handle an options flow for Ollama Vision using multiple steps."""
 
     def __init__(self, config_entry):
-        super().__init__()
         """Initialize options flow."""
-        self._config_entry = config_entry
+        self.config_entry = config_entry
         # This will hold the vision configuration options from the first step
         self.vision_options = {}
 
@@ -234,8 +228,8 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_text_model_options()
             return self.async_create_entry(title="", data=user_input)
 
-        options = self._config_entry.options
-        data = self._config_entry.data
+        options = self.config_entry.options
+        data = self.config_entry.data
         
         # Migrate old config: combine host:port if port exists separately
         existing_host = options.get(CONF_HOST, data.get(CONF_HOST, ""))
@@ -257,10 +251,6 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 CONF_VISION_KEEPALIVE,
                 default=options.get(CONF_VISION_KEEPALIVE, data.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)),
             ): int,
-            vol.Required(
-                CONF_VISION_CONTEXTSIZE,
-                default=options.get(CONF_VISION_CONTEXTSIZE, data.get(CONF_VISION_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)),
-            ): int,
             vol.Optional(
                 CONF_TEXT_MODEL_ENABLED,
                 default=options.get(CONF_TEXT_MODEL_ENABLED, data.get(CONF_TEXT_MODEL_ENABLED, False)),
@@ -278,8 +268,8 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
             combined_options = {**self.vision_options, **user_input}
             return self.async_create_entry(title="", data=combined_options)
 
-        options = self._config_entry.options
-        data = self._config_entry.data
+        options = self.config_entry.options
+        data = self.config_entry.data
         
         # Migrate old config: combine host:port if port exists separately
         existing_text_host = options.get(CONF_TEXT_HOST, data.get(CONF_TEXT_HOST, ""))
@@ -300,10 +290,6 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
             vol.Required(
                 CONF_TEXT_KEEPALIVE,
                 default=options.get(CONF_TEXT_KEEPALIVE, data.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)),
-            ): int,
-            vol.Required(
-                CONF_TEXT_CONTEXTSIZE,
-                default=options.get(CONF_TEXT_CONTEXTSIZE, data.get(CONF_TEXT_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)),
             ): int,
         })
         return self.async_show_form(

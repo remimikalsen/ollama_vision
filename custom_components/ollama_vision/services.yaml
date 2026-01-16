@@ -3,19 +3,15 @@ analyze_image:
   description: "Send an image to Ollama for analysis and create a sensor with the result. Optionally elaborate the description with a text model."
   fields:
     image_url:
-      name: "Image URL(s)"
-      description: >
-        URL or local path(s) of the image(s) to analyze. You can pass a single string
-        or a YAML list of strings for multi-image comparison.
+      name: "Image URL"
+      description: "URL of the image to analyze"
       required: true
-      example:
-        - "www/reference/front_day.jpg"
-        - "www/camera_snapshots/front_now.jpg"
+      example: "https://example.com/image.jpg"
       selector:
         text:
     prompt:
       name: "Vision Prompt"
-      description: "Prompt to send to Ollama Vision 2 model with the image"
+      description: "Prompt to send to Ollama vision model with the image"
       required: false
       default: "Describe the image. How many people are there? What is their gender, hair style, age, mood, facial features and clothes?"
       selector:
@@ -29,11 +25,11 @@ analyze_image:
         text:
     device_id:
       name: "Configuration"
-      description: "Pick the Ollama Vision 2 device to use for this analysis. A device represents a specific vision and text model."
+      description: "Pick the Ollama Vision device to use for this analysis. A device represents a specific vision and text model."
       required: false
       selector:
         device:
-          integration: ollama_vision2
+          integration: ollama_vision
     use_text_model:
       name: "Use Text Model"
       description: "Whether to use the text model to elaborate on the vision model's description"

@@ -1,5 +1,5 @@
 {
-    "name": "Ollama Vision 2",
+    "name": "Ollama Vision",
     "homeassistant": "2025.2",
     "hacs": "2.0"
   }
