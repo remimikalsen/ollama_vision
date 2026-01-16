@@ -1,4 +1,4 @@
-"""The Ollama Vision integration."""
+"""The Ollama Vision 2 integration."""
 import logging
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
@@ -48,7 +48,7 @@ CONFIG_SCHEMA = config_entry_only_config_schema(DOMAIN)
 # Service schema
 ANALYZE_IMAGE_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_IMAGE_URL): cv.string,
+        vol.Required(ATTR_IMAGE_URL):  vol.Any(cv.string, [cv.string]),
         vol.Optional(ATTR_PROMPT, default=DEFAULT_PROMPT): cv.string,
         vol.Required(ATTR_IMAGE_NAME): cv.string,
         vol.Optional(ATTR_DEVICE_ID): cv.string,
@@ -58,14 +58,14 @@ ANALYZE_IMAGE_SCHEMA = vol.Schema(
 )
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the Ollama Vision component."""
+    """Set up the Ollama Vision 2 component."""
     hass.data[DOMAIN] = {}
     hass.data[DOMAIN]["pending_sensors"] = {}
     hass.data[DOMAIN]["created_sensors"] = {}
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Ollama Vision from a config entry."""
+    """Set up Ollama Vision 2 from a config entry."""
     host = entry.data.get(CONF_HOST) or entry.options.get(CONF_HOST)
     port = entry.data.get(CONF_PORT) or entry.options.get(CONF_PORT)
     
@@ -199,11 +199,11 @@ async def handle_analyze_image(hass, call):
         ]
         if not valid_entry_ids:
             # Means there are no configured integrations at all
-            raise HomeAssistantError("No configured Ollama Vision entries found. "
+            raise HomeAssistantError("No configured Ollama Vision 2 entries found. "
                                     "Please add at least one config entry or specify device_id.")
         if len(valid_entry_ids) > 1 and not device_id:
             _LOGGER.warning(
-                "Multiple Ollama Vision instances found but no device_id specified. "
+                "Multiple Ollama Vision 2 instances found but no device_id specified. "
                 "Using first available. Specify device_id parameter to target a specific instance."
             )
         # Pick the first valid entry
@@ -228,11 +228,29 @@ async def handle_analyze_image(hass, call):
         text_prompt_formatted = text_prompt.format(description=vision_description)
         final_description = await client_to_use.elaborate_text(vision_description, text_prompt_formatted)
     
+    
     # Replace 'www/' with 'local/' if applicable
     # If the image is within /config/www, it will actually 
     # be displayed in companion app notifications
-    if image_url.startswith("www/"):
-        image_url = image_url.replace("www/", "local/", 1)
+    # Normalize image_url to a list
+    if isinstance(image_url, str):
+        image_urls = [image_url]
+    else:
+        image_urls = list(image_url)
+
+    #validate for strings
+    for url in image_urls:
+    if not isinstance(url, str):
+        raise ValueError("image_url entries must be strings")
+
+    # Normalize each path
+    normalized_urls = []
+    for url in image_urls:
+        if url.startswith("www/"):
+            url = url.replace("www/", "local/", 1)
+        normalized_urls.append(url)
+
+    image_url = normalized_urls
     
     # Store data so the sensor can display it
     pending_sensors = hass.data[DOMAIN].setdefault("pending_sensors", {}).setdefault(entry_id_to_use, {})

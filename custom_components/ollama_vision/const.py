@@ -1,7 +1,7 @@
-"""Constants for the Ollama Vision integration."""
+"""Constants for the Ollama Vision 2 integration."""
 __version__ = "1.0.7"
-DOMAIN = "ollama_vision"
-INTEGRATION_NAME = "Ollama Vision"
+DOMAIN = "ollama_vision2"
+INTEGRATION_NAME = "Ollama Vision 2"
 MANUFACTURER = "@remimikalsen (https://github.com/remimikalsen)"
 
 CONF_HOST = "host"
@@ -23,7 +23,7 @@ ATTR_IMAGE_NAME = "image_name"
 ATTR_DEVICE_ID = "device_id"
 
 # Event constants
-EVENT_IMAGE_ANALYZED = "ollama_vision_image_analyzed"
+EVENT_IMAGE_ANALYZED = "ollama_vision2_image_analyzed"
 
 # Textual model (optional)
 CONF_TEXT_MODEL_ENABLED = "text_model_enabled"

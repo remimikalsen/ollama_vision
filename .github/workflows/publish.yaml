@@ -86,15 +86,15 @@ jobs:
       - name: Update VERSION and manifest.json and const.py and commit
         run: |
 
-          sed -i 's/"version": "[^"]*"/"version": "'${{ env.VERSION }}'"/' custom_components/ollama_vision/manifest.json
-          sed -i 's/__version__ = "[^"]*"/__version__ = "'${{ env.VERSION }}'"/' custom_components/ollama_vision/const.py
+          sed -i 's/"version": "[^"]*"/"version": "'${{ env.VERSION }}'"/' custom_components/ollama_vision2/manifest.json
+          sed -i 's/__version__ = "[^"]*"/__version__ = "'${{ env.VERSION }}'"/' custom_components/ollama_vision2/const.py
 
           echo "${{ env.VERSION }}" > VERSION
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@ollama_vision"
+          git config user.email "github-actions[bot]@ollama_vision2"
 
-          git add custom_components/ollama_vision/manifest.json
-          git add custom_components/ollama_vision/const.py
+          git add custom_components/ollama_vision2/manifest.json
+          git add custom_components/ollama_vision2/const.py
           git add VERSION
           
           git commit -m "ci: update VERSION and manifest file to ${{ env.VERSION }} [skip ci]"
@@ -105,7 +105,7 @@ jobs:
         run: |
           # Configure Git
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@ollama_vision"
+          git config user.email "github-actions[bot]@ollama_vision2"
 
           # Create and push the new tag
           git tag "${{ env.VERSION }}" -m "ci: release version ${{ env.VERSION }}"

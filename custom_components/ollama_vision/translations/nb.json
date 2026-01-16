@@ -2,8 +2,8 @@
     "config": {
       "step": {
         "user": {
-          "title": "Koble til Ollama Vision",
-          "description": "Legg inn detaljene for å koble til din Ollama Vision-modell.",
+          "title": "Koble til Ollama Vision 2",
+          "description": "Legg inn detaljene for å koble til din Ollama Vision 2-modell.",
           "data": {
             "name": "Navn",
             "host": "Vision-vert",
@@ -30,14 +30,14 @@
         "required": "Dette feltet er påkrevd"
       },
       "abort": {
-        "already_configured": "Ollama Vision er allerede konfigurert"
+        "already_configured": "Ollama Vision 2 er allerede konfigurert"
       }
     },
     "options": {
       "step": {
         "init": {
-            "title": "Ollama Vision-innstillinger",
-            "description": "Juster innstillingene for din Ollama Vision-integrasjon.",
+            "title": "Ollama Vision 2-innstillinger",
+            "description": "Juster innstillingene for din Ollama Vision 2-integrasjon.",
             "data": {
             "host": "Vision-vert",
             "port": "Vision-port",
@@ -69,7 +69,7 @@
           },
           "prompt": {
             "name": "Vision-prompt",
-            "description": "Prompt som skal sendes til Ollama vision-modell med bildet."
+            "description": "Prompt som skal sendes til Ollama Vision 2-modell med bildet."
           },
           "image_name": {
             "name": "Bildenavn",
@@ -77,7 +77,7 @@
           },
           "device_id": {
             "name": "Konfigurasjon",
-            "description": "Velg Ollama Vision-enheten som skal brukes for denne analysen. En enhet representerer en spesifikk vision- og tekstmodell."
+            "description": "Velg Ollama Vision 2-enheten som skal brukes for denne analysen. En enhet representerer en spesifikk vision- og tekstmodell."
           },
           "use_text_model": {
             "name": "Bruk tekstmodell",

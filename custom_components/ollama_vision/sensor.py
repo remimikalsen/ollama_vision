@@ -1,4 +1,4 @@
-"""Sensor platform for Ollama Vision."""
+"""Sensor platform for Ollama Vision 2."""
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -24,7 +24,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the Ollama Vision sensors."""
+    """Set up the Ollama Vision 2 sensors."""
     hass.data[DOMAIN][entry.entry_id]["async_add_entities"] = async_add_entities
     
     # Create the info sensors
@@ -106,7 +106,7 @@ async def async_setup_entry(
 
 
 class OllamaVisionInfoSensor(SensorEntity):
-    """Information sensor for the Ollama Vision model."""
+    """Information sensor for the Ollama Vision 2 model."""
     
     def __init__(self, hass, entry):
         """Initialize the sensor."""
@@ -144,7 +144,7 @@ class OllamaTextModelInfoSensor(SensorEntity):
 
 
 class OllamaVisionImageSensor(SensorEntity):
-    """Sensor representing an image analyzed by Ollama Vision."""
+    """Sensor representing an image analyzed by Ollama Vision 2."""
     
     def __init__(self, hass, entry, image_name):
         """Initialize the sensor."""

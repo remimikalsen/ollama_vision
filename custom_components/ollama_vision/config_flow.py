@@ -1,4 +1,4 @@
-"""Config flow for Ollama Vision integration."""
+"""Config flow for Ollama Vision 2 integration."""
 import logging
 import aiohttp
 import voluptuous as vol
@@ -114,7 +114,7 @@ def _build_api_url(host, port=None, endpoint="version"):
 
 
 class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Ollama Vision."""
+    """Handle a config flow for Ollama Vision 2."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
@@ -128,7 +128,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # Test connection to Ollama vision server
+            # Test connection to Ollama Vision 2 server
             try:
                 session = aiohttp.ClientSession()
                 api_url = _build_api_url(user_input[CONF_HOST], None, "version")
@@ -211,7 +211,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
-    """Handle an options flow for Ollama Vision using multiple steps."""
+    """Handle an options flow for Ollama Vision 2 using multiple steps."""
 
     def __init__(self, config_entry):
         """Initialize options flow."""

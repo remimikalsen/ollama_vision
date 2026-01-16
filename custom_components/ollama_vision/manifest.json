@@ -1,12 +1,12 @@
 {
-    "domain": "ollama_vision",
-    "name": "Ollama Vision",
-    "codeowners": ["@remimikalsen"],
+    "domain": "ollama_vision2",
+    "name": "Ollama Vision 2",
+    "codeowners": ["@tjnco"],
     "config_flow": true,
     "dependencies": [],
-    "documentation": "https://github.com/remimikalsen/ollama_vision",
+    "documentation": "https://github.com/tjnco/ollama_vision2",
     "iot_class": "local_polling",
-    "issue_tracker": "https://github.com/remimikalsen/ollama_vision/issues",
+    "issue_tracker": "https://github.com/tjnco/ollama_vision2/issues",
     "requirements": ["aiohttp>=3.8.0"],
-    "version": "1.0.7"
+    "version": "1"
 }
