@@ -14,8 +14,31 @@ Image_url: now accepts multiple "path"s
 
 Default LLM: [antony66/gemma3-tools:27b](https://ollama.com/antony66/gemma3-tools:27b)
 
+DEFAULT_MODEL = "antony66/gemma3-tools:27b"
+
 DEFAULT_TEXT_MODEL = "antony66/gemma3-tools:27b"
 
+## Usage
+
+You can queue images for analysis via the `ollama_vision.analyze_image` service. When called, it generates or updates a dynamic sensor holding the description of the analyzed image. 
+
+Note! The sensors will appear as **unavailable** after rebooting Home Assistant or reloading the integration. This is due to the fact that these sensors are dynamically created. You can create thousands of sensors if you wish, and I don't think persisting them is a good idea, because it would also require a bulletproof way of cleaning them up when needed.
+
+### Frigate example
+The following automation describes a person detected by Frigate:
+
+```
+action: ollama_vision2.analyze_image
+data:
+  prompt: >-
+    Image 1 is a reference with no people in it. Can you compare these 2 images? Is there now a person?
+  image_url: 
+    - www/camera_snapshots/Front_default.jpg
+    - https://myipcamera.local/live.jpg
+  device_id: b9d50fa9859ada72422dd2691febcd88
+  image_name: Front_Status
+  device_id: <YOUR OLLAMA VISION DEVICE ID>    
+```
 
 # Installation and Troubleshooting
 
