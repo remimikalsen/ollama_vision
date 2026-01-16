@@ -134,12 +134,12 @@ class OllamaClient:
 
         images_b64 = []
 
-        # Loop through all images
-        for image_url in image_urls:
-            img_bytes = await self._get_image(url)
-            images_b64.append(base64.b64encode(img_bytes).decode())
+        try:
+            # Loop through all images
+            for image_url in image_urls:
+                img_bytes = await self._get_image(url)
+                images_b64.append(base64.b64encode(img_bytes).decode())
 
-            try:
                 # 1) Get image data
                 # a) Directly from an internal API
                 if image_url.startswith("/api"):
@@ -267,7 +267,8 @@ class OllamaClient:
                     return final_text
 
         except Exception as exc:
-            _LOGGER.error("Comprehensive error in image analysis (URL: %s): %s", image_url, exc)
+            urls = image_url if isinstance(image_url, list) else [image_url]
+            _LOGGER.error("Comprehensive error in image analysis (URLs: %s): %s",", ".join(str(u) for u in urls),exc,)
             return None
 
 

@@ -2,7 +2,7 @@
 __version__ = "1.0.7"
 DOMAIN = "ollama_vision2"
 INTEGRATION_NAME = "Ollama Vision 2"
-MANUFACTURER = "@remimikalsen (https://github.com/remimikalsen)"
+MANUFACTURER = "@tjnco (https://github.com/tjnco)"
 
 CONF_HOST = "host"
 CONF_PORT = "port"
@@ -11,7 +11,7 @@ DEFAULT_KEEPALIVE = -1
 
 # Default values
 DEFAULT_PORT = 11434
-DEFAULT_MODEL = "moondream"
+DEFAULT_MODEL = "antony66/gemma3-tools:27b"
 CONF_VISION_KEEPALIVE = "vision_keepalive"
 DEFAULT_PROMPT = "Describe the image. How many people are there? What is their gender, hair style, age, mood, facial features and clothes?"
 

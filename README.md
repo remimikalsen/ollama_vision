@@ -7,7 +7,13 @@
 
 # Ollama Vision ~2
 
-This is a copy of the origional [Ollama Vision](https://github.com/remimikalsen/ollama_vision) with the intent at this time to allow for multiple image files being sent to the LLM. Everything in this fork is the same. I have specifically renamed it to ollama vision 2, as to not interfere with the version of ollama vision that is already installed.
+This is a copy of the origional [Ollama Vision](https://github.com/remimikalsen/ollama_vision) with the intent at this time to allow for multiple image files being sent to the LLM. I have specifically renamed it to ollama vision 2, as to not interfere with the version of ollama vision that is already installed.
+
+# Changes
+
+Image_url: now accepts multiple "path"s
+Default LLM: [antony66/gemma3-tools:27b](https://ollama.com/antony66/gemma3-tools:27b)
+
 
 
 # Installation and Troubleshooting
