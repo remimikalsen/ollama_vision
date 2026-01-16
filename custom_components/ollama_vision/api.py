@@ -91,11 +91,14 @@ class OllamaClient:
         text_port=None,
         text_model=None,
         vision_keepalive=-1,
+        vision_contextsize=8192,
         text_keepalive=-1,
+        text_contextsize=8192,
     ):
         self.hass = hass
         self.model = model
         self.vision_keepalive = vision_keepalive
+        self.vision_contexsize = vision_contexsize
         
         # Parse vision host/URL
         vision_protocol, vision_host, vision_port, vision_path = _parse_url_or_host_port(host, port)
@@ -111,6 +114,7 @@ class OllamaClient:
         self.text_port = text_port
         self.text_model = text_model
         self.text_keepalive = text_keepalive
+        self.text_contextsize = text_contextsize
         
         if self.text_enabled:
             text_protocol, parsed_text_host, parsed_text_port, text_path = _parse_url_or_host_port(text_host, text_port)
@@ -245,7 +249,9 @@ class OllamaClient:
                 "prompt": prompt,
                 "images": images_b64,
                 "stream": True,
-                "keep_alive": self.vision_keepalive
+                "keep_alive": self.vision_keepalive,
+                "options":
+                    {"num_ctx": self.vision_contexsize}
             }
 
             _LOGGER.debug("Vision model: %s", self.model)
@@ -290,6 +296,8 @@ class OllamaClient:
                 "prompt": prompt,
                 "stream": True,
                 "keep_alive": self.text_keepalive
+                "options":
+                    {"num_ctx": self.text_contextsize}
             }
 
             _LOGGER.debug("Text model: %s", self.text_model)

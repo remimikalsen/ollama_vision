@@ -10,6 +10,7 @@
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
+            "vision_contextsize": "Vision Model Context Size (8192 default)",
             "text_model_enabled": "Enable Text Model"
           }
         },
@@ -43,6 +44,7 @@
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
+            "vision_contextsize": "Vision Model Context Size (8192 default)",
             "text_model_enabled": "Enable Text Model"
             }
         },

@@ -10,6 +10,7 @@
             "port": "Vision-port",
             "model": "Vision-modell",
             "vision_keepalive": "Vision-modell keep-alive (-1 for alltid på)",
+            "vision_contextsize": "Vision-modell Context-size (8192)",
             "text_model_enabled": "Aktiver tekstmodell"
           }
         },
@@ -43,6 +44,7 @@
             "port": "Vision-port",
             "model": "Vision-modell",
             "vision_keepalive": "Vision-modell Keep-Alive (-1 for alltid på)",
+            "vision_contextsize": "Vision-modell Context-size (8192)",
             "text_model_enabled": "Aktiver Tekstmodell"
             }
         },

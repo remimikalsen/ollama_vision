@@ -33,6 +33,9 @@ from .const import (
     CONF_TEXT_KEEPALIVE,
     DEFAULT_KEEPALIVE,
     CONF_VISION_KEEPALIVE,
+    CONF_TEXT_CONTEXTSIZE,
+    DEFAULT_CONTEXTSIZE,
+    CONF_VISION_CONTEXTSIZE,
     DEFAULT_PROMPT,
     DEFAULT_TEXT_PROMPT,
     __version__,
@@ -77,6 +80,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     model = entry.data.get(CONF_MODEL) or entry.options.get(CONF_MODEL)
     name = entry.data.get(CONF_NAME)
     vision_keepalive = entry.data.get(CONF_VISION_KEEPALIVE) or entry.options.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
+    vision_contextsize = entry.data.get(CONF_VISION_CONTEXTSIZE) or entry.options.get(CONF_VISION_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)
     
     # Get text model settings
     text_model_enabled = entry.options.get(
@@ -87,6 +91,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     text_port = None
     text_model = None
     text_keepalive = DEFAULT_KEEPALIVE
+    text_contextsize = DEFAULT_CONTEXTSIZE
     
     if text_model_enabled:
         text_host = entry.data.get(CONF_TEXT_HOST) or entry.options.get(CONF_TEXT_HOST)
@@ -99,8 +104,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         
         text_model = entry.data.get(CONF_TEXT_MODEL) or entry.options.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
         text_keepalive = entry.data.get(CONF_TEXT_KEEPALIVE) or entry.options.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
+        text_contextsize = entry.data.get(CONF_TEXT_CONTEXTSIZE) or entry.options.get(CONF_TEXT_CONTEXTSIZE, DEFAULT_CONTEXTSIZE)
     
-    client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, text_keepalive)
+    client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, vision_contextsize, text_keepalive, text_contextsize) ##follow vision_keepalive for vision_contextsize
     
     # Store the client in hass.data
     hass.data[DOMAIN][entry.entry_id] = {
@@ -113,7 +119,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             CONF_TEXT_MODEL_ENABLED: text_model_enabled,
             CONF_TEXT_HOST: text_host,  # host may contain hostname:port or full URL
             CONF_TEXT_MODEL: text_model,
-            CONF_TEXT_KEEPALIVE: text_keepalive
+            CONF_TEXT_KEEPALIVE: text_keepalive,
+            CONF_TEXT_CONTEXTSIZE: text_contextsize
         },
         "device_info": {
             "identifiers": {(DOMAIN, entry.entry_id)},

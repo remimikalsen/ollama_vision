@@ -10,6 +10,7 @@
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
+            "vision_contextsize": "Keep-Alive do Context Size (8192)",
             "text_model_enabled": "Ativar Modelo de Texto"
           }
         },
@@ -43,6 +44,7 @@
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
+            "vision_contextsize": "Keep-Alive do Context Size (8192)",
             "text_model_enabled": "Ativar Modelo de Texto"
             }
         },
