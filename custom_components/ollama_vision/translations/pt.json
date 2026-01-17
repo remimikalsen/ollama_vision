@@ -56,7 +56,12 @@
             "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)"
             }
         }
-        }
+        },
+      "error": {
+        "cannot_connect": "Não é possível conectar ao Ollama",
+        "unknown": "Ocorreu um erro inesperado",
+        "required": "Este campo é obrigatório"
+      }
     },
     "services": {
       "analyze_image": {

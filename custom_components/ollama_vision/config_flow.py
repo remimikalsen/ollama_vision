@@ -207,29 +207,43 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        return OllamaVisionOptionsFlow()
+        return OllamaVisionOptionsFlow(config_entry)
 
 
 class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
     """Handle an options flow for Ollama Vision using multiple steps."""
 
-    def __init__(self):
+    def __init__(self, config_entry):
         """Initialize options flow."""
-        super().__init__()
+        self._config_entry = config_entry
         # This will hold the vision configuration options from the first step
         self.vision_options = {}
 
     async def async_step_init(self, user_input=None):
         """Handle the first step: vision options and text model toggle."""
+        errors = {}
         if user_input is not None:
-            self.vision_options = user_input
-            if user_input.get(CONF_TEXT_MODEL_ENABLED):
-                # If text model is enabled, proceed to second step.
-                return await self.async_step_text_model_options()
-            return self.async_create_entry(title="", data=user_input)
+            try:
+                session = aiohttp.ClientSession()
+                api_url = _build_api_url(user_input[CONF_HOST], None, "version")
+                async with session.get(api_url) as response:
+                    if response.status == 200:
+                        await session.close()
+                        self.vision_options = user_input
+                        if user_input.get(CONF_TEXT_MODEL_ENABLED):
+                            # If text model is enabled, proceed to second step.
+                            return await self.async_step_text_model_options()
+                        return self.async_create_entry(title="", data=user_input)
+                    errors["base"] = "cannot_connect"
+                await session.close()
+            except aiohttp.ClientError:
+                errors["base"] = "cannot_connect"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
 
-        options = self.config_entry.options
-        data = self.config_entry.data
+        options = self._config_entry.options
+        data = self._config_entry.data
         
         # Migrate old config: combine host:port if port exists separately
         existing_host = options.get(CONF_HOST, data.get(CONF_HOST, ""))
@@ -259,17 +273,32 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=schema,
+            errors=errors,
         )
 
     async def async_step_text_model_options(self, user_input=None):
         """Handle the second step: text model configuration options."""
+        errors = {}
         if user_input is not None:
-            # Merge the vision options and the text model options into one entry.
-            combined_options = {**self.vision_options, **user_input}
-            return self.async_create_entry(title="", data=combined_options)
+            try:
+                session = aiohttp.ClientSession()
+                api_url = _build_api_url(user_input[CONF_TEXT_HOST], None, "version")
+                async with session.get(api_url) as response:
+                    if response.status == 200:
+                        await session.close()
+                        # Merge the vision options and the text model options into one entry.
+                        combined_options = {**self.vision_options, **user_input}
+                        return self.async_create_entry(title="", data=combined_options)
+                    errors["base"] = "cannot_connect"
+                await session.close()
+            except aiohttp.ClientError:
+                errors["base"] = "cannot_connect"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
 
-        options = self.config_entry.options
-        data = self.config_entry.data
+        options = self._config_entry.options
+        data = self._config_entry.data
         
         # Migrate old config: combine host:port if port exists separately
         existing_text_host = options.get(CONF_TEXT_HOST, data.get(CONF_TEXT_HOST, ""))
@@ -295,4 +324,5 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="text_model_options",
             data_schema=schema,
+            errors=errors,
         )
