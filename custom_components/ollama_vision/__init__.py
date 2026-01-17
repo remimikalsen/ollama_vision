@@ -66,17 +66,17 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Ollama Vision from a config entry."""
-    host = entry.data.get(CONF_HOST) or entry.options.get(CONF_HOST)
-    port = entry.data.get(CONF_PORT) or entry.options.get(CONF_PORT)
+    host = entry.options.get(CONF_HOST) or entry.data.get(CONF_HOST)
+    port = entry.options.get(CONF_PORT) or entry.data.get(CONF_PORT)
     
     # Migrate old config: combine host:port if port exists separately
     if port and host and ':' not in host and not host.startswith('http'):
         host = f"{host}:{port}"
         port = None
     
-    model = entry.data.get(CONF_MODEL) or entry.options.get(CONF_MODEL)
+    model = entry.options.get(CONF_MODEL) or entry.data.get(CONF_MODEL)
     name = entry.data.get(CONF_NAME)
-    vision_keepalive = entry.data.get(CONF_VISION_KEEPALIVE) or entry.options.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
+    vision_keepalive = entry.options.get(CONF_VISION_KEEPALIVE) or entry.data.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
     
     # Get text model settings
     text_model_enabled = entry.options.get(
@@ -89,16 +89,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     text_keepalive = DEFAULT_KEEPALIVE
     
     if text_model_enabled:
-        text_host = entry.data.get(CONF_TEXT_HOST) or entry.options.get(CONF_TEXT_HOST)
-        text_port = entry.data.get(CONF_TEXT_PORT) or entry.options.get(CONF_TEXT_PORT)
+        text_host = entry.options.get(CONF_TEXT_HOST) or entry.data.get(CONF_TEXT_HOST)
+        text_port = entry.options.get(CONF_TEXT_PORT) or entry.data.get(CONF_TEXT_PORT)
         
         # Migrate old text config: combine host:port if port exists separately
         if text_port and text_host and ':' not in text_host and not text_host.startswith('http'):
             text_host = f"{text_host}:{text_port}"
             text_port = None
         
-        text_model = entry.data.get(CONF_TEXT_MODEL) or entry.options.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
-        text_keepalive = entry.data.get(CONF_TEXT_KEEPALIVE) or entry.options.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
+        text_model = entry.options.get(CONF_TEXT_MODEL) or entry.data.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
+        text_keepalive = entry.options.get(CONF_TEXT_KEEPALIVE) or entry.data.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
     
     client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, text_keepalive)
     

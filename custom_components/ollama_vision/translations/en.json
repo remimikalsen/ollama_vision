@@ -56,7 +56,12 @@
             "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)"
             }
         }
-        }
+        },
+      "error": {
+        "cannot_connect": "Cannot connect to Ollama",
+        "unknown": "Unexpected error occurred",
+        "required": "This field is required"
+      }
     },
     "services": {
       "analyze_image": {

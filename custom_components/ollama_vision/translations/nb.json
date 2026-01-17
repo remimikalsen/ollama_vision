@@ -56,7 +56,12 @@
             "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)"
             }
         }
-        }
+        },
+      "error": {
+        "cannot_connect": "Kan ikke koble til Ollama",
+        "unknown": "En uventet feil oppstod",
+        "required": "Dette feltet er påkrevd"
+      }
     },
     "services": {
       "analyze_image": {
