@@ -10,6 +10,7 @@
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
+            "vision_think": "Pensar antes de responder (modelo vision)",
             "text_model_enabled": "Ativar Modelo de Texto"
           }
         },
@@ -20,7 +21,8 @@
             "text_host": "Host do Modelo de Texto",
             "text_port": "Porta do Modelo de Texto",
             "text_model": "Modelo de Texto",
-            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)"
+            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)",
+            "text_think": "Pensar antes de responder (modelo de texto)"
           }
         }
       },
@@ -43,6 +45,7 @@
             "port": "Porta do Vision",
             "model": "Modelo Vision",
             "vision_keepalive": "Keep-Alive do Modelo Vision (-1 para sempre ligado)",
+            "vision_think": "Pensar antes de responder (modelo vision)",
             "text_model_enabled": "Ativar Modelo de Texto"
             }
         },
@@ -53,7 +56,8 @@
             "text_host": "Host do Modelo de Texto",
             "text_port": "Porta do Modelo de Texto",
             "text_model": "Modelo de Texto",
-            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)"
+            "text_keepalive": "Keep-Alive do Modelo de Texto (-1 para sempre ligado)",
+            "text_think": "Pensar antes de responder (modelo de texto)"
             }
         }
         },
@@ -91,6 +95,10 @@
           "text_prompt": {
             "name": "Prompt de Texto",
             "description": "Modelo de prompt para o modelo de texto. Veja o modelo padrão para aprender como referenciar a saída do modelo vision."
+          },
+          "think": {
+            "name": "Pensar Antes de Responder",
+            "description": "Substitui a definição de pensamento do dispositivo para esta chamada. Desligado envia think=false ao Ollama para que modelos de raciocínio (ex. Qwen3) respondam diretamente. Deixe vazio para usar a definição configurada."
           }
         }
       }

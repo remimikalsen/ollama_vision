@@ -10,6 +10,7 @@
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
+            "vision_think": "Think before responding (vision model)",
             "text_model_enabled": "Enable Text Model"
           }
         },
@@ -20,7 +21,8 @@
             "text_host": "Text Model Host",
             "text_port": "Text Model Port",
             "text_model": "Text Model",
-            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)"
+            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)",
+            "text_think": "Think before responding (text model)"
           }
         }
       },
@@ -43,6 +45,7 @@
             "port": "Vision Port",
             "model": "Vision Model",
             "vision_keepalive": "Vision Model Keep-Alive (-1 for indefinite)",
+            "vision_think": "Think before responding (vision model)",
             "text_model_enabled": "Enable Text Model"
             }
         },
@@ -53,7 +56,8 @@
             "text_host": "Text Model Host",
             "text_port": "Text Model Port",
             "text_model": "Text Model",
-            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)"
+            "text_keepalive": "Text Model Keep-Alive (-1 for indefinite)",
+            "text_think": "Think before responding (text model)"
             }
         }
         },
@@ -91,6 +95,10 @@
           "text_prompt": {
             "name": "Text Prompt",
             "description": "Prompt template for the text model. See the default template to learn how to reference the vision model's output."
+          },
+          "think": {
+            "name": "Think Before Responding",
+            "description": "Override the device's thinking setting for this call. Off sends think=false to Ollama so reasoning models (e.g. Qwen3) answer directly. Leave empty to use the configured setting."
           }
         }
       }

@@ -13,6 +13,10 @@ DEFAULT_KEEPALIVE = -1
 DEFAULT_PORT = 11434
 DEFAULT_MODEL = "moondream"
 CONF_VISION_KEEPALIVE = "vision_keepalive"
+# Whether thinking-capable models (e.g. Qwen3) may reason before answering.
+# When False, "think": false is sent to Ollama so reasoning is suppressed.
+CONF_VISION_THINK = "vision_think"
+DEFAULT_THINK = False
 DEFAULT_PROMPT = "Describe the image. How many people are there? What is their gender, hair style, age, mood, facial features and clothes?"
 
 # Service call constants
@@ -21,6 +25,7 @@ ATTR_IMAGE_URL = "image_url"
 ATTR_PROMPT = "prompt"
 ATTR_IMAGE_NAME = "image_name"
 ATTR_DEVICE_ID = "device_id"
+ATTR_THINK = "think"
 
 # Event constants
 EVENT_IMAGE_ANALYZED = "ollama_vision_image_analyzed"
@@ -33,6 +38,7 @@ CONF_TEXT_MODEL = "text_model"
 DEFAULT_TEXT_PORT = 11434
 DEFAULT_TEXT_MODEL = "llama3.1"
 CONF_TEXT_KEEPALIVE = "text_keepalive"
+CONF_TEXT_THINK = "text_think"
 DEFAULT_TEXT_PROMPT = "You are an AI that describes people outside of my home. Give me a short brief based on the following description: <description>{description}</description>. Do it in English, and only give me a short brief, nothing else."
 
 # Textual model service call constants
