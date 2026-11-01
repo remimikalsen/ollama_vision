@@ -20,6 +20,7 @@ from .const import (
     ATTR_PROMPT,
     ATTR_IMAGE_NAME,
     ATTR_DEVICE_ID,
+    ATTR_THINK,
     SERVICE_ANALYZE_IMAGE,
     EVENT_IMAGE_ANALYZED,
     ATTR_USE_TEXT_MODEL,
@@ -33,6 +34,9 @@ from .const import (
     CONF_TEXT_KEEPALIVE,
     DEFAULT_KEEPALIVE,
     CONF_VISION_KEEPALIVE,
+    CONF_VISION_THINK,
+    CONF_TEXT_THINK,
+    DEFAULT_THINK,
     DEFAULT_PROMPT,
     DEFAULT_TEXT_PROMPT,
     __version__,
@@ -54,6 +58,8 @@ ANALYZE_IMAGE_SCHEMA = vol.Schema(
         vol.Optional(ATTR_DEVICE_ID): cv.string,
         vol.Optional(ATTR_USE_TEXT_MODEL, default=False): cv.boolean,
         vol.Optional(ATTR_TEXT_PROMPT, default=DEFAULT_TEXT_PROMPT): cv.string,
+        # No default: None means "use the device's configured setting"
+        vol.Optional(ATTR_THINK): cv.boolean,
     }
 )
 
@@ -77,6 +83,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     model = entry.options.get(CONF_MODEL) or entry.data.get(CONF_MODEL)
     name = entry.data.get(CONF_NAME)
     vision_keepalive = entry.options.get(CONF_VISION_KEEPALIVE) or entry.data.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)
+    # Booleans: a stored False must win over data, so no "or" chaining here
+    vision_think = entry.options.get(
+        CONF_VISION_THINK,
+        entry.data.get(CONF_VISION_THINK, DEFAULT_THINK)
+    )
     
     # Get text model settings
     text_model_enabled = entry.options.get(
@@ -87,6 +98,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     text_port = None
     text_model = None
     text_keepalive = DEFAULT_KEEPALIVE
+    text_think = DEFAULT_THINK
     
     if text_model_enabled:
         text_host = entry.options.get(CONF_TEXT_HOST) or entry.data.get(CONF_TEXT_HOST)
@@ -99,8 +111,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         
         text_model = entry.options.get(CONF_TEXT_MODEL) or entry.data.get(CONF_TEXT_MODEL, DEFAULT_TEXT_MODEL)
         text_keepalive = entry.options.get(CONF_TEXT_KEEPALIVE) or entry.data.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)
+        text_think = entry.options.get(
+            CONF_TEXT_THINK,
+            entry.data.get(CONF_TEXT_THINK, DEFAULT_THINK)
+        )
     
-    client = OllamaClient(hass, host, port, model, text_host, text_port, text_model, vision_keepalive, text_keepalive)
+    client = OllamaClient(
+        hass, host, port, model, text_host, text_port, text_model,
+        vision_keepalive, text_keepalive, vision_think, text_think,
+    )
     
     # Store the client in hass.data
     hass.data[DOMAIN][entry.entry_id] = {
@@ -113,7 +132,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             CONF_TEXT_MODEL_ENABLED: text_model_enabled,
             CONF_TEXT_HOST: text_host,  # host may contain hostname:port or full URL
             CONF_TEXT_MODEL: text_model,
-            CONF_TEXT_KEEPALIVE: text_keepalive
+            CONF_TEXT_KEEPALIVE: text_keepalive,
+            CONF_VISION_THINK: vision_think,
+            CONF_TEXT_THINK: text_think,
         },
         "device_info": {
             "identifiers": {(DOMAIN, entry.entry_id)},
@@ -171,6 +192,7 @@ async def handle_analyze_image(hass, call):
     device_id = call.data.get(ATTR_DEVICE_ID)
     use_text_model = call.data.get(ATTR_USE_TEXT_MODEL, False)
     text_prompt = call.data.get(ATTR_TEXT_PROMPT, DEFAULT_TEXT_PROMPT)
+    think = call.data.get(ATTR_THINK)  # None -> use configured setting
     
     # Properly slugify the image name to ensure consistent IDs
     slugified_image_name = slugify(image_name)
@@ -212,7 +234,7 @@ async def handle_analyze_image(hass, call):
     client_to_use = hass.data[DOMAIN][entry_id_to_use]["client"]
     
     # Analyze the image using the selected client
-    vision_description = await client_to_use.analyze_image(image_url, vision_prompt)
+    vision_description = await client_to_use.analyze_image(image_url, vision_prompt, think)
     
     if vision_description is None:
         raise HomeAssistantError("Failed to analyze image")
@@ -226,7 +248,7 @@ async def handle_analyze_image(hass, call):
     text_prompt_formatted = None
     if use_text_model and text_model_enabled:
         text_prompt_formatted = text_prompt.format(description=vision_description)
-        final_description = await client_to_use.elaborate_text(vision_description, text_prompt_formatted)
+        final_description = await client_to_use.elaborate_text(vision_description, text_prompt_formatted, think)
     
     # Replace 'www/' with 'local/' if applicable
     # If the image is within /config/www, it will actually 

@@ -10,6 +10,7 @@
             "port": "Vision-port",
             "model": "Vision-modell",
             "vision_keepalive": "Vision-modell keep-alive (-1 for alltid på)",
+            "vision_think": "Tenk før svar (vision-modell)",
             "text_model_enabled": "Aktiver tekstmodell"
           }
         },
@@ -20,7 +21,8 @@
             "text_host": "Tekstmodell-vert",
             "text_port": "Tekstmodell-port",
             "text_model": "Tekstmodell",
-            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)"
+            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)",
+            "text_think": "Tenk før svar (tekstmodell)"
           }
         }
       },
@@ -43,6 +45,7 @@
             "port": "Vision-port",
             "model": "Vision-modell",
             "vision_keepalive": "Vision-modell Keep-Alive (-1 for alltid på)",
+            "vision_think": "Tenk før svar (vision-modell)",
             "text_model_enabled": "Aktiver Tekstmodell"
             }
         },
@@ -53,7 +56,8 @@
             "text_host": "Tekstmodell-vert",
             "text_port": "Tekstmodell-port",
             "text_model": "Tekstmodell",
-            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)"
+            "text_keepalive": "Tekstmodell keep-alive (-1 for alltid på)",
+            "text_think": "Tenk før svar (tekstmodell)"
             }
         }
         },
@@ -91,6 +95,10 @@
           "text_prompt": {
             "name": "Tekst-prompt",
             "description": "Prompt-mal for tekstmodellen. Se standardmalen for å lære hvordan du refererer til vision-modellens utdata."
+          },
+          "think": {
+            "name": "Tenk før svar",
+            "description": "Overstyr enhetens tenke-innstilling for dette kallet. Av sender think=false til Ollama slik at resonnerende modeller (f.eks. Qwen3) svarer direkte. La stå tom for å bruke den konfigurerte innstillingen."
           }
         }
       }

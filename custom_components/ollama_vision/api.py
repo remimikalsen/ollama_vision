@@ -5,9 +5,25 @@ import logging
 import aiohttp
 import base64
 import json
+import re
 from urllib.parse import urlparse
 
 _LOGGER = logging.getLogger(__name__)
+
+# Reasoning blocks that thinking models may emit inline in the response text.
+_THINK_BLOCK_RE = re.compile(r"<(think|thinking)>.*?</\1>\s*", re.DOTALL | re.IGNORECASE)
+# A closing tag with no opening tag: some chat templates place the opening tag
+# in the prompt, so the model only emits the reasoning followed by </think>.
+_THINK_CLOSE_RE = re.compile(r"^.*?</(think|thinking)>\s*", re.DOTALL | re.IGNORECASE)
+
+
+def _strip_thinking(text: str) -> str:
+    """Remove inline reasoning traces (e.g. <think>...</think>) from model output."""
+    if not text or "<" not in text:
+        return text
+    cleaned = _THINK_BLOCK_RE.sub("", text)
+    cleaned = _THINK_CLOSE_RE.sub("", cleaned)
+    return cleaned.strip()
 
 
 def _parse_url_or_host_port(url_or_host, port=None):
@@ -91,10 +107,14 @@ class OllamaClient:
         text_model=None,
         vision_keepalive=-1,
         text_keepalive=-1,
+        vision_think=False,
+        text_think=False,
     ):
         self.hass = hass
         self.model = model
         self.vision_keepalive = vision_keepalive
+        self.vision_think = vision_think
+        self.text_think = text_think
         
         # Parse vision host/URL
         vision_protocol, vision_host, vision_port, vision_path = _parse_url_or_host_port(host, port)
@@ -121,10 +141,23 @@ class OllamaClient:
         else:
             self.text_api_base_url = None
 
-    async def analyze_image(self, image_url: str, prompt: str) -> str:
+    @staticmethod
+    def _apply_think(payload: dict, think: bool) -> None:
+        """
+        Add Ollama's "think" field to the payload when thinking should be suppressed.
+
+        Only "think": false is ever sent. Ollama accepts it for every model, while
+        "think": true is rejected with HTTP 400 by models without thinking support.
+        When thinking is allowed the field is omitted so the model keeps its default.
+        """
+        if not think:
+            payload["think"] = False
+
+    async def analyze_image(self, image_url: str, prompt: str, think: bool | None = None) -> str:
         """
         Send an image analysis request to Ollama in streaming (NDJSON) mode.
         Concatenate the .response fields into one final string, or return None on error.
+        `think` overrides the configured vision_think setting when not None.
         """
         try:
             # 1) Get image data
@@ -235,8 +268,10 @@ class OllamaClient:
                 "stream": True,
                 "keep_alive": self.vision_keepalive
             }
+            self._apply_think(payload, self.vision_think if think is None else think)
 
             _LOGGER.debug("Vision model: %s", self.model)
+            _LOGGER.debug("Vision think: %s", payload.get("think", "model default"))
             _LOGGER.debug("Vision API: %s", self.api_base_url)
             _LOGGER.debug("Vision prompt: %s", prompt)
 
@@ -259,10 +294,11 @@ class OllamaClient:
 
 
 
-    async def elaborate_text(self, text: str, prompt_template: str) -> str:
+    async def elaborate_text(self, text: str, prompt_template: str, think: bool | None = None) -> str:
         """
         Same NDJSON approach for text elaboration, if the user has a text model.
         Concatenate partial tokens from .response
+        `think` overrides the configured text_think setting when not None.
         """
         if not self.text_enabled:
             # fallback
@@ -278,8 +314,10 @@ class OllamaClient:
                 "stream": True,
                 "keep_alive": self.text_keepalive
             }
+            self._apply_think(payload, self.text_think if think is None else think)
 
             _LOGGER.debug("Text model: %s", self.text_model)
+            _LOGGER.debug("Text think: %s", payload.get("think", "model default"))
             _LOGGER.debug("Text API: %s", self.text_api_base_url)
             _LOGGER.debug("Text prompt: %s", prompt)
 
@@ -304,6 +342,8 @@ class OllamaClient:
             {"response":" The", "done":false}
         and keep appending .response to a list.
         Stop if 'done': true or if no more lines.
+        Ollama's separate "thinking" field is ignored, and any reasoning the
+        model emitted inline (<think>...</think>) is stripped from the result.
         Return the concatenated text.
         """
         collected_parts = []
@@ -327,4 +367,4 @@ class OllamaClient:
             if data_obj.get("done") is True:
                 break
 
-        return "".join(collected_parts)
+        return _strip_thinking("".join(collected_parts))

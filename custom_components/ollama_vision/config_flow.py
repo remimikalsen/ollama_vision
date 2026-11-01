@@ -24,6 +24,9 @@ from .const import (
     CONF_VISION_KEEPALIVE,
     DEFAULT_KEEPALIVE,
     CONF_TEXT_KEEPALIVE,
+    CONF_VISION_THINK,
+    CONF_TEXT_THINK,
+    DEFAULT_THINK,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -161,6 +164,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_HOST): str,
                 vol.Required(CONF_MODEL, default=DEFAULT_MODEL): str,
                 vol.Required(CONF_VISION_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
+                vol.Optional(CONF_VISION_THINK, default=DEFAULT_THINK): bool,
                 vol.Optional(CONF_TEXT_MODEL_ENABLED, default=False): bool,
             }),
             errors=errors,
@@ -199,6 +203,7 @@ class OllamaVisionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_TEXT_HOST): str,
                 vol.Required(CONF_TEXT_MODEL, default=DEFAULT_TEXT_MODEL): str,
                 vol.Required(CONF_TEXT_KEEPALIVE, default=DEFAULT_KEEPALIVE): int,
+                vol.Optional(CONF_TEXT_THINK, default=DEFAULT_THINK): bool,
             }),
             errors=errors,
         )
@@ -266,6 +271,10 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 default=options.get(CONF_VISION_KEEPALIVE, data.get(CONF_VISION_KEEPALIVE, DEFAULT_KEEPALIVE)),
             ): int,
             vol.Optional(
+                CONF_VISION_THINK,
+                default=options.get(CONF_VISION_THINK, data.get(CONF_VISION_THINK, DEFAULT_THINK)),
+            ): bool,
+            vol.Optional(
                 CONF_TEXT_MODEL_ENABLED,
                 default=options.get(CONF_TEXT_MODEL_ENABLED, data.get(CONF_TEXT_MODEL_ENABLED, False)),
             ): bool,
@@ -320,6 +329,10 @@ class OllamaVisionOptionsFlow(config_entries.OptionsFlow):
                 CONF_TEXT_KEEPALIVE,
                 default=options.get(CONF_TEXT_KEEPALIVE, data.get(CONF_TEXT_KEEPALIVE, DEFAULT_KEEPALIVE)),
             ): int,
+            vol.Optional(
+                CONF_TEXT_THINK,
+                default=options.get(CONF_TEXT_THINK, data.get(CONF_TEXT_THINK, DEFAULT_THINK)),
+            ): bool,
         })
         return self.async_show_form(
             step_id="text_model_options",

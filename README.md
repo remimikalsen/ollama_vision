@@ -64,6 +64,7 @@ After restarting Home Assistant, go to Settings → Devices & Services.
    - Hostname only: `192.168.1.1` (defaults to port 11434)
  - **Vision Model**: The vision-capable model name (default: moondream)
  - **Vision Model Keep-Alive**: Keep this model loaded in memory (-1 for indefinite)
+ - **Think before responding (vision model)**: Off by default. When off, the integration sends `think: false` to Ollama so reasoning models such as Qwen3 answer directly instead of including their reasoning trace in the description. Turn it on to let thinking-capable models reason first (slower, but may improve quality). It has no effect on models without thinking support.
  - **Enable Text Model**: Toggle a separate text model for enhanced descriptions
  - **Text Model Host**: Host address for the optional text-model server. Accepts the same formats as Vision Host:
    - Full URL with path: `http://server.example.com/subpath` or `https://server.example.com/subpath`
@@ -71,6 +72,7 @@ After restarting Home Assistant, go to Settings → Devices & Services.
    - Hostname only: `192.168.1.1` (defaults to port 11434)
  - **Text Model**: The text model name (default: llama3.1)
  - **Text Model Keep-Alive**: Keep the text model loaded in memory (-1 for indefinite)
+ - **Think before responding (text model)**: Same as the vision setting, for the text model.
 
 Click Submit to save. You can add multiple Ollama Vision configurations (each with a different name or model) if you wish; each configuration will appear as a device with its own sensors.
 
@@ -200,6 +202,7 @@ The above examples either creates or updates a sensor named something like `sens
 | device_id      | No       | If you have multiple Ollama Vision devices configured, specify which device ID to use. If omitted, the service uses the first available Ollama Vision device. |
 | use_text_model | No       | Whether to use a second, specialized text model for elaboration (default: false).                                      |
 | text_prompt    | No       | Prompt for the text model, referencing {description} which is the output from the vision model (default: a short, cheeky introduction). |
+| think          | No       | Override the device's "Think before responding" setting for this call (applies to both the vision and text model). Omit to use the configured setting. |
 
 ### Events
 

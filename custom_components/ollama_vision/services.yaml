@@ -44,3 +44,9 @@ analyze_image:
       default: "You are an AI that describes people outside of my home. Give me a short brief based on the following description: <description>{description}</description>. Do it in English, and only give me a short brief, nothing else."
       selector:
         text: 
+    think:
+      name: "Think Before Responding"
+      description: "Override the device's thinking setting for this call. Off sends think=false to Ollama so reasoning models (e.g. Qwen3) answer directly. Leave empty to use the configured setting."
+      required: false
+      selector:
+        boolean:
